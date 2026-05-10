@@ -1,8 +1,5 @@
 import React from 'react';
 import "./About.scss";
-import LocalMallIcon from '@mui/icons-material/LocalMall';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import CheckroomIcon from '@mui/icons-material/Checkroom';
 
 const About = () => {
   return (

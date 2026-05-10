@@ -15,7 +15,7 @@ const Product = () => {
 
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useFetch(`/product/${id}`);
+  const { data, loading } = useFetch(`/product/${id}`);
 
   const handleAdd = () => {
     dispatch(

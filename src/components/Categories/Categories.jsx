@@ -70,7 +70,7 @@ const Categories = () => {
         <div className="row animationR">
           <div className="row">
             <img
-              src="http://images.summitmedia-digital.com/preview/images/2019/03/22/nm_photographers-ig.jpg"
+              src="https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt=""
             />
               <Link className="link animated-border" to="/products/1">

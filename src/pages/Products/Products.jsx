@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import List from "../../components/List/List";
 import useFetch from "../../custom/useFetch";
@@ -10,7 +10,7 @@ const Products = () => {
   const [sort, setSort] = useState("asc");
   const [selectedSubCats, setSelectedSubCats] = useState([]);
 
-  const { data, loading, error } = useFetch(`/category/${catId}`);
+  const { data } = useFetch(`/category/${catId}`);
 
   const handleChange = (e) => {
     const value = e.target.value;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
@@ -21,7 +21,7 @@ const Navbar = () => {
 
   useEffect(() => {
       dispatch(handleCart(false))
-  }, [location]);
+  }, [location, dispatch]);
 
   return (
     <div className="navbar">
