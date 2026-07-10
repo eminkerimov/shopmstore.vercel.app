@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./Mobil.scss";
 
@@ -7,40 +7,75 @@ const Mobil = () => {
   const location = useLocation().pathname;
 
   useLayoutEffect(() => {
-    setMobilOpen(false)
+    setMobilOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobilOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobilOpen]);
+
+  const scrollToFooter = () => {
+    const footer = document.querySelector(".footer");
+
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+      setMobilOpen(false);
+    }
+  };
 
   return (
     <div className={mobilOpen ? "mobil menu-opened" : "mobil"}>
-      <div
+      <button
         className="burger-container"
         onClick={() => setMobilOpen(!mobilOpen)}
+        aria-label="Toggle mobile menu"
       >
-        <div id="burger">
-          <div className="bar topBar"></div>
-          <div className="bar btmBar"></div>
-        </div>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div className="menuPanel">
+        <Link className="menuLogo" to="/">
+          M-store
+        </Link>
+
+        <ul className="menu">
+          <li>
+            <Link className="link" to="/">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link className="link" to="/products/1">
+              Women
+            </Link>
+          </li>
+          <li>
+            <Link className="link" to="/products/2">
+              Men
+            </Link>
+          </li>
+          <li>
+            <Link className="link" to="/products/3">
+              Children
+            </Link>
+          </li>
+          <li>
+            <Link className="link" to="/about">
+              About
+            </Link>
+          </li>
+          <li>
+            <button className="link contactBtn" onClick={scrollToFooter}>
+              Contact
+            </button>
+          </li>
+        </ul>
       </div>
-      <ul className="menu">
-        <li className="menu-item">
-        <Link className="link" to="/">Home</Link>
-        </li>
-        <li className="menu-item">
-        <Link className="link" to="/about">About</Link>
-        </li>
-        <li className="menu-item">
-        <Link className="link" to="/">Contact</Link>
-        </li>
-        <li className="menu-item">
-        <Link className="link" to="/products/1">Women</Link>
-        </li>
-        <li className="menu-item">
-        <Link className="link" to="/products/2">Men</Link>
-        </li>
-        <li className="menu-item">
-        <Link className="link" to="/products/3">Children</Link>
-        </li>
-      </ul>
     </div>
   );
 };

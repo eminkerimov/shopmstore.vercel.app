@@ -38,71 +38,49 @@ const Navbar = () => {
   };
 
   return (
-    <div className={`navbar ${isScrolled ? "scrolled" : ""}`}>
+    <header className={`navbar ${isScrolled ? "scrolled" : ""}`}>
       <div className="wrapper">
-        <div className="mobilBtn">
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-
-        <div className="left">
-          <div className="item underline">
-            <NavLink className="link" to="/products/1">
-              Women
-            </NavLink>
-          </div>
-
-          <div className="item underline">
-            <NavLink className="link" to="/products/2">
-              Men
-            </NavLink>
-          </div>
-
-          <div className="item underline">
-            <NavLink className="link" to="/products/3">
-              Children
-            </NavLink>
-          </div>
-        </div>
-
-        <div className="center">
+        <div className="brand">
           <Link className="link" to="/">
             M-store
           </Link>
         </div>
 
-        <div className="right">
-          <div className="item underline">
-            <NavLink className="link" to="/">
-              Home
-            </NavLink>
-          </div>
+        <nav className="mainNav">
+          <NavLink className="link navLink" to="/products/1">
+            Women
+          </NavLink>
+          <NavLink className="link navLink" to="/products/2">
+            Men
+          </NavLink>
+          <NavLink className="link navLink" to="/products/3">
+            Children
+          </NavLink>
+        </nav>
 
-          <div className="item underline">
-            <NavLink className="link" to="/about">
-              About
-            </NavLink>
-          </div>
-
-          <button className="item underline contactBtn" onClick={scrollToFooter}>
+        <div className="actions">
+          <NavLink className="link actionLink" to="/">
+            Home
+          </NavLink>
+          <NavLink className="link actionLink" to="/about">
+            About
+          </NavLink>
+          <button className="actionLink contactBtn" onClick={scrollToFooter}>
             Contact
           </button>
 
-          <div className="icons">
-            <div
-              className="cartIcon"
-              onClick={() => dispatch(handleCart(!isCartOpen))}
-            >
-              <ShoppingCartOutlinedIcon />
-              <span>{products?.length}</span>
-            </div>
+          <div
+            className="cartIcon"
+            onClick={() => dispatch(handleCart(!isCartOpen))}
+          >
+            <ShoppingCartOutlinedIcon />
+            <span>{products?.length}</span>
           </div>
         </div>
       </div>
 
       {isCartOpen && <Cart />}
-    </div>
+    </header>
   );
 };
 
