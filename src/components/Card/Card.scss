@@ -11,6 +11,29 @@
   flex-direction: column;
   gap: 14px;
   margin-bottom: 20px;
+  transition:
+    transform 0.28s ease,
+    filter 0.28s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    filter: drop-shadow(0 14px 24px rgba(45, 51, 66, 0.12));
+
+    h2 {
+      color: #2879fe;
+    }
+
+    .image {
+      .mainImg {
+        opacity: 0;
+      }
+
+      .secondImg {
+        opacity: 1;
+        transform: scale(1.04);
+      }
+    }
+  }
 
   .image {
     width: 100%;
@@ -35,23 +58,13 @@
     .mainImg {
       z-index: 1;
       opacity: 1;
+      transform: scale(1);
     }
 
     .secondImg {
       z-index: 2;
       opacity: 0;
-      transform: scale(1.02);
-    }
-
-    &:hover {
-      .mainImg {
-        opacity: 0;
-      }
-
-      .secondImg {
-        opacity: 1;
-        transform: scale(1);
-      }
+      transform: scale(1.01);
     }
 
     .newBadge {
@@ -60,8 +73,9 @@
       left: 12px;
       z-index: 3;
       padding: 7px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 999px;
-      background: rgba(17, 24, 39, 0.88);
+      background: rgba(45, 51, 66, 0.94);
       backdrop-filter: blur(8px);
       color: #fff;
       font-size: 10px;
@@ -69,6 +83,7 @@
       font-weight: 700;
       letter-spacing: 0.8px;
       text-transform: uppercase;
+      box-shadow: 0 6px 16px rgba(45, 51, 66, 0.18);
     }
   }
 
@@ -81,17 +96,15 @@
   h2 {
     min-height: 44px;
     margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     color: #171717;
     font-size: 16px;
     line-height: 1.4;
     font-weight: 600;
     transition: color 0.2s ease;
-  }
-
-  &:hover {
-    h2 {
-      color: #2879fe;
-    }
   }
 
   .prices {
@@ -100,7 +113,7 @@
     gap: 11px;
 
     .previousPrice {
-      color: #9a9a9a;
+      color: #a3a3a3;
       font-size: 14px;
       font-weight: 500;
       text-decoration: line-through;
@@ -109,7 +122,8 @@
     .currentPrice {
       color: #171717;
       font-size: 18px;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: -0.2px;
     }
   }
 }
@@ -122,6 +136,11 @@
 
   .card {
     margin-bottom: 0;
+
+    &:hover {
+      transform: none;
+      filter: none;
+    }
 
     .image {
       height: 400px;

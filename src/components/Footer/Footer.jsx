@@ -1,82 +1,90 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import EastOutlinedIcon from "@mui/icons-material/EastOutlined";
 import "./Footer.scss";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
   return (
-    <div className="footer">
-      <div className="footer__top">
-        <div className="item wSmall">
-          <h1>Categories</h1>
-          <Link className="link" to="/products/1">
-            Women
-          </Link>
-          <Link className="link" to="/products/2">
-            Men
-          </Link>
-          <Link className="link" to="/products/3">
-            Children
-          </Link>
-          <Link className="link" to="/products/3">
-            Accessories
-          </Link>
-          <Link className="link" to="/products/3">
-            New Arrivals
-          </Link>
+    <footer className="footer">
+      <div className="footer__container">
+        <section className="footer__newsletter">
+          <div className="footer__newsletterContent">
+            <span>Stay in the loop</span>
+
+            <h2>New collections, straight to your inbox.</h2>
+
+            <p>
+              Receive updates about new arrivals, seasonal collections and
+              exclusive offers.
+            </p>
+          </div>
+
+          <form className="footer__form" onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              aria-label="Email address"
+              required
+            />
+
+            <button type="submit" aria-label="Subscribe">
+              Subscribe
+              <EastOutlinedIcon />
+            </button>
+          </form>
+        </section>
+
+        <div className="footer__content">
+          <div className="footer__brand">
+            <Link to="/" className="footer__logo">
+              M-store
+            </Link>
+
+            <p>
+              Contemporary fashion selected for everyday comfort, confidence
+              and effortless style.
+            </p>
+          </div>
+
+          <nav className="footer__column" aria-label="Shop links">
+            <h3>Shop</h3>
+
+            <Link to="/products/1">Women</Link>
+            <Link to="/products/2">Men</Link>
+            <Link to="/products/3">Children</Link>
+          </nav>
+
+          <nav className="footer__column" aria-label="Company links">
+            <h3>Company</h3>
+
+            <Link to="/about">About</Link>
+            <a href="mailto:support@m-store.com">Contact</a>
+          </nav>
+
+          <div className="footer__column">
+            <h3>Customer care</h3>
+
+            <a href="mailto:support@m-store.com">support@m-store.com</a>
+            <span>Baku, Azerbaijan</span>
+          </div>
         </div>
-        <div className="item wSmall">
-          <h1>Links</h1>
-          <span>FAQ</span>
-          <span>Pages</span>
-          <span>Stores</span>
-          <span>Compare</span>
-          <span>Cookies</span>
+
+        <div className="footer__bottom">
+          <span>© {currentYear} M-store. All rights reserved.</span>
+
+          <img
+            src="/img/payment.png"
+            alt="Supported payment methods"
+          />
         </div>
-        <div className="item wLarge">
-          <h1>About</h1>
-          <span className="about">
-            Since 2022, our mission is to have a positive impact by offering a
-            seamless e-commerce experience to customers and sellers.The trust of
-            over 50 million customers and 500,000 sellers propelled us to become
-            the first decacorn in USA.
-          </span>
-        </div>
-        <div className="item wLarge">
-          <h1>Contact</h1>
-            <div className="item info">
-              <span>
-              Address:
-              </span>
-              <a href="https://www.google.com/maps/place/%D0%A1%D0%B5%D0%B2%D0%B5%D1%80%D0%BD%D0%B0%D1%8F+%D0%94%D0%B0%D0%BA%D0%BE%D1%82%D0%B0,+%D0%A1%D0%A8%D0%90/@47.0958449,-109.5299498,6z/data=!3m1!4b1!4m5!3m4!1s0x52d7831257d8e963:0xd849a39835ecfc9!8m2!3d47.3983492!4d-100.3051758">
-              Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678.
-              </a>
-              </div>
-              <div className="item info">
-                <span>Phone:</span>
-                <a href="tel:32645645645">3264-564-56-45</a>
-              </div>
-              <div className="item info">
-                <span>Mobile:</span>
-                <a href="tel:66632568122">6663-256-81-22</a>
-              </div>
-              <div className="item info">
-                <span>E-mail:</span>
-                <a href="mailto:info@minget.az">info@mstore666.com</a>
-              </div>
-       </div>
       </div>
-      <div className="footer__bottom">
-        <div className="left">
-        <Link to="/" className="link logo">M-store</Link>
-          <span className="copyright">
-            © Copyright 2022. All Right Reserved
-          </span>
-        </div>
-        <div className="right">
-          <img src="/img/payment.png" alt="payment" />
-        </div>
-      </div>
-    </div>
+    </footer>
   );
 };
 
