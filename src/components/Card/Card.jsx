@@ -1,24 +1,42 @@
-import React from 'react'
-import {Link} from "react-router-dom";
-import "./Card.scss"
+import React from "react";
+import { Link } from "react-router-dom";
+import "./Card.scss";
 
-const Card = ({item}) => {
+const Card = ({ item }) => {
+  const previousPrice = ((item?.price * 100) / 70).toFixed(2);
+
   return (
-    <Link className="link" to={`../product/${item.id}`}>
-      <div className='card'>
+    <Link className="cardLink" to={`/product/${item.id}`}>
+      <article className="card">
         <div className="image">
-            {item?.isNew && <span>New Season</span>}
-        <img src={item?.img} alt="" className="mainImg"/>
-        <img src={item?.img2} alt="" className="secondImg"/>
-        </div>
-            <h2>{item?.title}</h2>
-            <div className="prices">
-                <h3>${(item?.price * 100 / 70).toFixed(2)}</h3>
-                <h3>${item?.price}</h3>
-            </div>
-      </div>
-    </Link>
-  )
-}
+          {item?.isNew && (
+            <span className="newBadge">New Season</span>
+          )}
 
-export default Card
+          <img
+            src={item?.img}
+            alt={item?.title || "Product"}
+            className="mainImg"
+          />
+
+          <img
+            src={item?.img2}
+            alt=""
+            className="secondImg"
+          />
+        </div>
+
+        <div className="cardInfo">
+          <h2>{item?.title}</h2>
+
+          <div className="prices">
+            <span className="previousPrice">${previousPrice}</span>
+            <span className="currentPrice">${item?.price}</span>
+          </div>
+        </div>
+      </article>
+    </Link>
+  );
+};
+
+export default Card;

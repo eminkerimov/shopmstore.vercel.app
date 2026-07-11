@@ -4,26 +4,42 @@ import Card from "../Card/Card";
 import "./FeaturedProducts.scss";
 
 const FeaturedProducts = ({ type }) => {
+  const { data, loading, error } = useFetch(`/product?type=${type}`);
 
-  const {data, loading, error} = useFetch(`/product?type=${type}`);
+  const isFeatured = type === "featured";
 
   return (
-    <div className="featuredProducts">
+    <section className="featuredProducts">
       <div className="top">
-        <h1>{type} products</h1>
+        <span className="eyebrow">
+          {isFeatured ? "Featured collection" : "Trending now"}
+        </span>
+
+        <h1>
+          {isFeatured ? "Featured Products" : "Trending Products"}
+        </h1>
+
         <p>
-        Suits for spring/summer 2023 came in structured shapes and fitted silhouettes, bringing high quality tailoring to the forefront of design. While some cuts and fits were fine tuned to models, others were heavily structured into oversized designs. 
+          {isFeatured
+            ? "Modern essentials selected for the new season."
+            : "The most wanted pieces from our latest collections."}
         </p>
+
+        <div className="divider">
+          <span></span>
+        </div>
       </div>
+
       <div className="bottom">
-        {error ? "Something get wrong ..." 
-        :  loading 
-        ? "loading"
-        : data?.map((item) => (
-          <Card item={item} key={item.id} />
-        ))}
+        {error ? (
+          <div className="status error">Something went wrong.</div>
+        ) : loading ? (
+          <div className="status">Loading products...</div>
+        ) : (
+          data?.map((item) => <Card item={item} key={item.id} />)
+        )}
       </div>
-    </div>
+    </section>
   );
 };
 
