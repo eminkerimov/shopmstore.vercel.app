@@ -27,7 +27,7 @@ const slides = [
   },
   {
     image:
-      "https://images.unsplash.com/photo-1666312109949-110f8cc3b38e",
+      "https://images.unsplash.com/photo-1615461355765-178ee45afc2a",
     eyebrow: "Fresh arrivals",
     title: "Comfort for every day",
     description:
