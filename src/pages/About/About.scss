@@ -1,65 +1,299 @@
 .aboutPage {
-    height: calc(100vh - 80px);
-    background: url("https://images.unsplash.com/photo-1603798125914-7b5d27789248?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80") no-repeat;
-    background-size: 100%;
-    background-position: center;
-    position: relative;
-
-    .main {
-        position: absolute;
-        right: 70px;
-        bottom: 0;
-        display: flex;
-        width: 25%;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        padding: 70px 60px;
-        background-color: #fff;
-        gap: 40px;
-
-
-        h1 {
-            color: gray;
-        }
-
-        p {
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
-    }
+  width: 100%;
+  overflow-x: hidden;
+  background: #fff;
 }
 
-// Responsive
+.aboutHero {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 76px);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+
+  &__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 1.2s ease;
+  }
+
+  &:hover {
+    .aboutHero__image {
+      transform: scale(1.025);
+    }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        270deg,
+        rgba(18, 20, 26, 0.94) 0%,
+        rgba(18, 20, 26, 0.76) 38%,
+        rgba(18, 20, 26, 0.18) 72%,
+        rgba(18, 20, 26, 0.03) 100%
+      ),
+      linear-gradient(
+        0deg,
+        rgba(18, 20, 26, 0.48) 0%,
+        transparent 46%
+      );
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 0 0 82px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    color: #fff;
+    animation: aboutReveal 0.8s ease both;
+  }
+
+  &__eyebrow {
+    display: block;
+    margin-bottom: 22px;
+    color: #d8dce4;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 3.6px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 760px;
+    margin: 0;
+    font-size: clamp(58px, 6.5vw, 96px);
+    line-height: 0.98;
+    font-weight: 650;
+    letter-spacing: -3.5px;
+    text-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+
+    span {
+      display: block;
+      color: #79a9ff;
+      font-weight: 700;
+    }
+  }
+
+  p {
+    max-width: 570px;
+    margin: 30px 0 0;
+    color: #e0e3e8;
+    font-size: 17px;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  &__index {
+    position: absolute;
+    left: 42px;
+    bottom: 34px;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+}
+
+.aboutProcess {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 86px max(32px, calc((100% - 1280px) / 2)) 92px;
+  background:
+    radial-gradient(
+      circle at 12% 10%,
+      rgba(45, 51, 66, 0.08),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #eceef2 0%, #f7f8fa 100%);
+  display: grid;
+  grid-template-columns: 0.82fr 1.18fr;
+  gap: 90px;
+
+  &__heading {
+    > span {
+      display: block;
+      margin-bottom: 24px;
+      color: #2d3342;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      max-width: 520px;
+      margin: 0;
+      color: #17191f;
+      font-size: clamp(48px, 4.6vw, 70px);
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -2.5px;
+    }
+
+    p {
+      max-width: 470px;
+      margin: 26px 0 0;
+      color: #5f6672;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+  }
+
+  &__steps {
+    border-top: 1px solid rgba(45, 51, 66, 0.18);
+
+    article {
+      padding: 28px 0;
+      border-bottom: 1px solid rgba(45, 51, 66, 0.18);
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 22px;
+      align-items: start;
+      transition:
+        padding-left 0.25s ease,
+        background 0.25s ease;
+
+      &:hover {
+        padding-left: 12px;
+
+        .stepNumber {
+          color: #2879fe;
+        }
+      }
+
+      .stepNumber {
+        padding-top: 5px;
+        color: #858c97;
+        font-size: 12px;
+        font-weight: 700;
+        transition: color 0.25s ease;
+      }
+
+      h3 {
+        margin: 0 0 10px;
+        color: #20242d;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      p {
+        max-width: 560px;
+        margin: 0;
+        color: #5f6672;
+        font-size: 15px;
+        line-height: 1.65;
+      }
+    }
+  }
+}
+
+@keyframes aboutReveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media only screen and (max-width: 991px) {
-    .aboutPage .main {
-        width: 50%;
+  .aboutHero {
+    min-height: 700px;
+
+    &__content {
+      width: calc(100% - 48px);
+      padding-bottom: 66px;
     }
+
+    h1 {
+      letter-spacing: -3px;
+    }
+  }
+
+  .aboutProcess {
+    padding: 72px 24px 82px;
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
 }
 
 @media only screen and (max-width: 767px) {
-    .aboutPage {
-        background-size: cover;
-    }
-}
+  .aboutHero {
+    min-height: 630px;
 
-@media only screen and (max-width: 550px) {
-    .aboutPage {
-    
-        .main {
-            gap: 20px;
-            padding: 30px 40px;
-    
-    
-            h1 {
-                font-size: 25px;
-                        }
-    
-            p {
-                font-size: 13px;
-                letter-spacing: auto;
-            }
-        }
+    &__overlay {
+      background: linear-gradient(
+        270deg,
+        rgba(18, 20, 26, 0.9) 0%,
+        rgba(18, 20, 26, 0.64) 100%
+      );
     }
+
+    &__content {
+      width: calc(100% - 36px);
+      padding-bottom: 54px;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    h1 {
+      font-size: 54px;
+      letter-spacing: -2.3px;
+    }
+
+    p {
+      font-size: 16px;
+    }
+
+    &__index {
+      display: none;
+    }
+  }
+
+  .aboutProcess {
+    padding: 58px 18px 68px;
+
+    &__heading {
+      h2 {
+        font-size: 46px;
+        letter-spacing: -2px;
+      }
+    }
+
+    &__steps {
+      article {
+        grid-template-columns: 42px 1fr;
+        gap: 14px;
+        padding: 24px 0;
+
+        &:hover {
+          padding-left: 0;
+        }
+
+        h3 {
+          font-size: 21px;
+        }
+      }
+    }
+  }
 }
