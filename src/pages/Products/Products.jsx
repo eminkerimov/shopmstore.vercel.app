@@ -35,15 +35,6 @@ const categoryContent = {
   },
 };
 
-const fallbackCategory = {
-  title: "Collection",
-  number: "00",
-  image:
-    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=85",
-  description:
-    "A considered selection of contemporary pieces for everyday style.",
-};
-
 const Products = () => {
   const catId = parseInt(useParams().id, 10);
 
@@ -59,8 +50,10 @@ const Products = () => {
 
   const { data } = useFetch(`/category/${catId}`);
 
-  const currentCategory =
-    categoryContent[displayedCategoryId] || fallbackCategory;
+  const currentCategory = categoryContent[displayedCategoryId];
+
+  const hasActiveFilters =
+    selectedSubCats.length > 0 || maxPrice < 500 || sort !== "asc";
 
   useEffect(() => {
     Object.values(categoryContent).forEach((category) => {
@@ -70,35 +63,24 @@ const Products = () => {
   }, []);
 
   useEffect(() => {
-    if (catId === displayedCategoryId) {
-      return;
-    }
+    if (catId === displayedCategoryId) return;
 
     let isActive = true;
-    const nextCategory = categoryContent[catId] || fallbackCategory;
+    const nextCategory = categoryContent[catId];
     const nextImage = new Image();
 
     setIsHeroChanging(true);
-
     nextImage.src = nextCategory.image;
 
-    nextImage.onload = () => {
-      if (!isActive) {
-        return;
-      }
+    const updateCategory = () => {
+      if (!isActive) return;
 
       setDisplayedCategoryId(catId);
       setIsHeroChanging(false);
     };
 
-    nextImage.onerror = () => {
-      if (!isActive) {
-        return;
-      }
-
-      setDisplayedCategoryId(catId);
-      setIsHeroChanging(false);
-    };
+    nextImage.onload = updateCategory;
+    nextImage.onerror = updateCategory;
 
     return () => {
       isActive = false;
@@ -113,9 +95,7 @@ const Products = () => {
   }, [catId]);
 
   useLayoutEffect(() => {
-    if (!resultsRef.current) {
-      return;
-    }
+    if (!resultsRef.current) return;
 
     const currentHeight = resultsRef.current.scrollHeight;
 
@@ -125,11 +105,10 @@ const Products = () => {
   }, [data, selectedSubCats, maxPrice, sort]);
 
   const preserveResultsHeight = () => {
-    if (!resultsRef.current) {
-      return;
-    }
+    if (!resultsRef.current) return;
 
-    const currentHeight = resultsRef.current.getBoundingClientRect().height;
+    const currentHeight =
+      resultsRef.current.getBoundingClientRect().height;
 
     setResultsMinHeight((previousHeight) =>
       Math.max(previousHeight, currentHeight)
@@ -149,6 +128,14 @@ const Products = () => {
     );
   };
 
+  const removeCategory = (category) => {
+    preserveResultsHeight();
+
+    setSelectedSubCats((currentItems) =>
+      currentItems.filter((item) => item !== category)
+    );
+  };
+
   const handlePriceChange = (event) => {
     preserveResultsHeight();
     setMaxPrice(Number(event.target.value));
@@ -157,6 +144,14 @@ const Products = () => {
   const handleSortChange = (value) => {
     preserveResultsHeight();
     setSort(value);
+  };
+
+  const resetFilters = () => {
+    preserveResultsHeight();
+
+    setSelectedSubCats([]);
+    setMaxPrice(500);
+    setSort("asc");
   };
 
   return (
@@ -202,13 +197,55 @@ const Products = () => {
 
       <section className="catalog">
         <aside className="catalogFilters">
-          <div className="catalogFilters__header">
-            <h2>Filters</h2>
-            <span>{selectedSubCats.length}</span>
+          <div className="catalogFilters__heading">
+            <div>
+              <span>Refine selection</span>
+              <h2>Filters</h2>
+            </div>
+
+            <button
+              type="button"
+              className="catalogFilters__reset"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+            >
+              Reset
+            </button>
           </div>
 
-          <div className="filterItem">
-            <h3>Product categories</h3>
+          {selectedSubCats.length > 0 && (
+            <div className="activeFilters">
+              <span className="activeFilters__label">
+                Active
+              </span>
+
+              <div className="activeFilters__list">
+                {selectedSubCats.map((item) => (
+                  <button
+                    type="button"
+                    className="activeFilters__chip"
+                    key={item}
+                    onClick={() => removeCategory(item)}
+                  >
+                    <span>{item}</span>
+                    <span aria-hidden="true">×</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div
+            className={`filterCard ${
+              selectedSubCats.length > 0
+                ? "filterCard--active"
+                : ""
+            }`}
+          >
+            <div className="filterCard__header">
+              <span className="filterCard__index">01</span>
+              <h3>Categories</h3>
+            </div>
 
             <div className="filterOptions">
               {data?.subCategories?.map((item) => (
@@ -224,19 +261,35 @@ const Products = () => {
                     <span />
                   </span>
 
-                  <span className="checkOption__label">{item}</span>
+                  <span className="checkOption__label">
+                    {item}
+                  </span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="filterItem">
-            <h3>Filter by price</h3>
+          <div
+            className={`filterCard ${
+              maxPrice < 500 ? "filterCard--active" : ""
+            }`}
+          >
+            <div className="filterCard__header">
+              <span className="filterCard__index">02</span>
+              <h3>Price range</h3>
+            </div>
 
             <div className="priceFilter">
               <div className="priceFilter__values">
-                <span>$0</span>
-                <strong>${maxPrice}</strong>
+                <div>
+                  <span>From</span>
+                  <strong>$0</strong>
+                </div>
+
+                <div>
+                  <span>Up to</span>
+                  <strong>${maxPrice}</strong>
+                </div>
               </div>
 
               <input
@@ -250,11 +303,23 @@ const Products = () => {
                   "--range-progress": `${(maxPrice / 500) * 100}%`,
                 }}
               />
+
+              <div className="priceFilter__limits">
+                <span>$0</span>
+                <span>$500</span>
+              </div>
             </div>
           </div>
 
-          <div className="filterItem">
-            <h3>Sort by</h3>
+          <div
+            className={`filterCard ${
+              sort !== "asc" ? "filterCard--active" : ""
+            }`}
+          >
+            <div className="filterCard__header">
+              <span className="filterCard__index">03</span>
+              <h3>Sort products</h3>
+            </div>
 
             <div className="sortOptions">
               <label className="radioOption">
@@ -270,8 +335,9 @@ const Products = () => {
                   <span />
                 </span>
 
-                <span className="radioOption__label">
-                  Price: low to high
+                <span className="radioOption__content">
+                  <strong>Lowest first</strong>
+                  <span>Price ascending</span>
                 </span>
               </label>
 
@@ -288,8 +354,9 @@ const Products = () => {
                   <span />
                 </span>
 
-                <span className="radioOption__label">
-                  Price: high to low
+                <span className="radioOption__content">
+                  <strong>Highest first</strong>
+                  <span>Price descending</span>
                 </span>
               </label>
             </div>
@@ -309,7 +376,7 @@ const Products = () => {
             </div>
 
             <div className="catalogToolbar__meta">
-              <span>Price up to</span>
+              <span>Price limit</span>
               <strong>${maxPrice}</strong>
             </div>
           </div>
