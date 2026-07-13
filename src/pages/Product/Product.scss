@@ -539,13 +539,13 @@
     align-items: flex-start;
     justify-content: center;
     gap: 9px;
- border-right: 1px solid rgba(78, 91, 116, 0.18);
+    border-right: 3px solid rgba(78, 91, 116, 0.18);
      writing-mode: vertical-rl;
     transform: rotate(180deg);
 
     span {
     color: #2d3440;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 750;
       letter-spacing: 0.2em;
       text-transform: uppercase;
