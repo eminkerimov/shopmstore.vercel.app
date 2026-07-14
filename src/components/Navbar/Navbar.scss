@@ -3,9 +3,11 @@
   position: sticky;
   top: 0;
   z-index: 997;
+
   background: rgba(255, 255, 255, 0.94);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(14px);
+
   transition: box-shadow 0.25s ease, background 0.25s ease;
 
   &.scrolled {
@@ -15,7 +17,9 @@
 
   .wrapper {
     height: 100%;
+
     padding: 0 42px;
+
     display: grid;
     grid-template-columns: 220px 1fr 360px;
     align-items: center;
@@ -28,50 +32,59 @@
   }
 
   .brand {
+    color: #2879fe;
+
     font-size: 30px;
     font-weight: 800;
-    letter-spacing: 3px;
-    color: #2879fe;
     line-height: 1;
+    letter-spacing: 3px;
   }
 
   .mainNav {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     gap: 34px;
   }
 
   .actions {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
+    justify-content: flex-end;
     gap: 22px;
   }
 
   .navLink,
   .actionLink {
     position: relative;
+
+    padding: 0;
     border: none;
     background: transparent;
-    padding: 0;
+
+    color: #161616;
     font-family: inherit;
     font-size: 15px;
     font-weight: 600;
-    color: #161616;
+
     cursor: pointer;
     transition: color 0.2s ease;
 
     &::after {
       content: "";
+
       position: absolute;
       left: 0;
       bottom: -9px;
+
       width: 100%;
       height: 2px;
+
       background: #2879fe;
+
       transform: scaleX(0);
       transform-origin: right;
+
       transition: transform 0.25s ease;
     }
 
@@ -88,17 +101,32 @@
   }
 
   .cartIcon {
+    position: relative;
+
     width: 42px;
     height: 42px;
-    border-radius: 50%;
-    background: #f4f7ff;
-    color: #6f6f6f;
-    position: relative;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    outline: none;
+
+    background: #f4f7ff;
+    color: #6f6f6f;
+
+    font-family: inherit;
+
     cursor: pointer;
-    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    appearance: none;
+
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
 
     &:hover {
       color: #2879fe;
@@ -106,19 +134,29 @@
       transform: translateY(-1px);
     }
 
+    &:focus-visible {
+      outline: 2px solid #2879fe;
+      outline-offset: 3px;
+    }
+
     span {
+      position: absolute;
+      top: -6px;
+      right: -5px;
+
       min-width: 19px;
       height: 19px;
-      padding: 0 5px;
-      border-radius: 999px;
-      background: #2879fe;
-      color: #fff;
-      position: absolute;
-      right: -5px;
-      top: -6px;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
+      padding: 0 5px;
+      border-radius: 999px;
+
+      background: #2879fe;
+      color: #ffffff;
+
       font-size: 11px;
       font-weight: 700;
     }
@@ -128,9 +166,9 @@
 @media only screen and (max-width: 991px) {
   .navbar {
     .wrapper {
-      padding: 0 28px;
       grid-template-columns: 180px 1fr 300px;
       gap: 16px;
+      padding: 0 28px;
     }
 
     .brand {
@@ -157,9 +195,10 @@
     height: 76px;
 
     .wrapper {
-      padding: 0 20px 0 86px;
       display: flex;
       justify-content: space-between;
+
+      padding: 0 20px 0 86px;
     }
 
     .brand {
