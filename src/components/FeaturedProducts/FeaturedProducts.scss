@@ -10,7 +10,8 @@
     position: absolute;
     top: 0;
     left: 50%;
-width: min(1080px, calc(100% - 32px));    height: 260px;
+    width: min(1080px, calc(100% - 32px));
+    height: 260px;
     transform: translateX(-50%);
     border-radius: 28px;
     background:
@@ -192,7 +193,7 @@ width: min(1080px, calc(100% - 32px));    height: 260px;
     }
 
     .top {
-      margin-bottom: 40px;
+      margin-bottom: 120px;
 
       .eyebrow {
         font-size: 10px;
