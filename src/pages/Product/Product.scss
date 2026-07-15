@@ -789,3 +789,23 @@
     }
   }
 }
+
+.product__wishlist {
+  transition: all 0.25s ease;
+
+  svg {
+    transition: transform 0.25s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.12);
+  }
+
+  &--active {
+    color: #e5484d;
+
+    svg {
+      color: #e5484d;
+    }
+  }
+}

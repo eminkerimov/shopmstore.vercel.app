@@ -3,15 +3,17 @@ import "./Product.scss";
 
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import BalanceIcon from "@mui/icons-material/Balance";
 
 import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import useFetch from "../../custom/useFetch";
 import Card from "../../components/Card/Card";
 
 import { addToCart, handleCart } from "../../redux/cartReducer.js";
+import { toggleWishlist } from "../../redux/wishlistReducer.js";
 
 const RelatedProducts = ({ category, currentProductId }) => {
   const { data: relatedProducts, loading } = useFetch(
@@ -69,7 +71,15 @@ const Product = () => {
 
   const dispatch = useDispatch();
 
+  const wishlistProducts = useSelector(
+    (state) => state.wishlist.products
+  );
+
   const { data, loading } = useFetch(`/product/${id}`);
+
+  const isInWishlist = wishlistProducts.some(
+    (product) => String(product.id) === String(data?.id)
+  );
 
   useEffect(() => {
     setSelectedImg("img");
@@ -92,6 +102,25 @@ const Product = () => {
     );
 
     dispatch(handleCart(true));
+  };
+
+  const handleWishlist = () => {
+    if (!data) return;
+
+    dispatch(
+      toggleWishlist({
+        id: data.id,
+        title: data.title,
+        desc: data.desc,
+        price: data.price,
+        img: data.img,
+        img2: data.img2,
+        category: data.category,
+        sub_category: data.sub_category,
+        type: data.type,
+        isNew: data.isNew,
+      })
+    );
   };
 
   const handleAccordion = (accordionName) => {
@@ -226,9 +255,25 @@ const Product = () => {
           </div>
 
           <div className="product__actions">
-            <button type="button">
-              <FavoriteBorderIcon />
-              Add to wishlist
+            <button
+              type="button"
+              className={`product__wishlist ${
+                isInWishlist
+                  ? "product__wishlist--active"
+                  : ""
+              }`}
+              onClick={handleWishlist}
+              aria-pressed={isInWishlist}
+            >
+              {isInWishlist ? (
+                <FavoriteIcon />
+              ) : (
+                <FavoriteBorderIcon />
+              )}
+
+              {isInWishlist
+                ? "Remove from wishlist"
+                : "Add to wishlist"}
             </button>
 
             <button type="button">

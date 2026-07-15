@@ -1,5 +1,15 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+
+import {
+  Link,
+  NavLink,
+  useLocation,
+} from "react-router-dom";
+
 import "./Mobil.scss";
 
 const Mobil = () => {
@@ -18,6 +28,14 @@ const Mobil = () => {
     };
   }, [mobilOpen]);
 
+  const handleToggle = () => {
+    setMobilOpen((current) => !current);
+  };
+
+  const handleClose = () => {
+    setMobilOpen(false);
+  };
+
   const scrollToFooter = () => {
     const footer = document.querySelector(".footer");
 
@@ -30,52 +48,102 @@ const Mobil = () => {
   return (
     <div className={mobilOpen ? "mobil menu-opened" : "mobil"}>
       <button
+        type="button"
         className="burger-container"
-        onClick={() => setMobilOpen(!mobilOpen)}
-        aria-label="Toggle mobile menu"
+        onClick={handleToggle}
+        aria-label={
+          mobilOpen
+            ? "Close mobile menu"
+            : "Open mobile menu"
+        }
+        aria-expanded={mobilOpen}
       >
-        <span></span>
-        <span></span>
+        <span />
+        <span />
       </button>
 
-      <div className="menuPanel">
-        <Link className="menuLogo" to="/">
+      <button
+        type="button"
+        className="menuOverlay"
+        onClick={handleClose}
+        aria-label="Close mobile menu"
+      />
+
+      <aside className="menuPanel">
+        <Link
+          className="menuLogo"
+          to="/"
+          onClick={handleClose}
+        >
           M-store
         </Link>
 
-        <ul className="menu">
-          <li>
-            <Link className="link" to="/">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link className="link" to="/products/1">
+        <div className="menuSection">
+          <span className="menuSectionTitle">
+            Shop
+          </span>
+
+          <nav
+            className="categoryMenu"
+            aria-label="Product categories"
+          >
+            <NavLink
+              className="categoryMenuLink"
+              to="/products/1"
+            >
               Women
-            </Link>
-          </li>
-          <li>
-            <Link className="link" to="/products/2">
+            </NavLink>
+
+            <NavLink
+              className="categoryMenuLink"
+              to="/products/2"
+            >
               Men
-            </Link>
-          </li>
-          <li>
-            <Link className="link" to="/products/3">
+            </NavLink>
+
+            <NavLink
+              className="categoryMenuLink"
+              to="/products/3"
+            >
               Children
-            </Link>
-          </li>
-          <li>
-            <Link className="link" to="/about">
+            </NavLink>
+          </nav>
+        </div>
+
+        <div className="menuSection">
+          <span className="menuSectionTitle">
+            Explore
+          </span>
+
+          <nav
+            className="pageMenu"
+            aria-label="Main navigation"
+          >
+            <NavLink
+              className="pageMenuLink"
+              to="/"
+              end
+            >
+              Home
+            </NavLink>
+
+            <NavLink
+              className="pageMenuLink"
+              to="/about"
+            >
               About
-            </Link>
-          </li>
-          <li>
-            <button className="link contactBtn" onClick={scrollToFooter}>
+            </NavLink>
+
+            <button
+              type="button"
+              className="pageMenuLink contactBtn"
+              onClick={scrollToFooter}
+            >
               Contact
             </button>
-          </li>
-        </ul>
-      </div>
+          </nav>
+        </div>
+      </aside>
     </div>
   );
 };

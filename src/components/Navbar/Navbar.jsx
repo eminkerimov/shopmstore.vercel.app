@@ -1,14 +1,34 @@
 import React, { useEffect, useState } from "react";
+
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+
+import {
+  Link,
+  NavLink,
+  useLocation,
+} from "react-router-dom";
+
 import { useDispatch, useSelector } from "react-redux";
+
 import { handleCart } from "../../redux/cartReducer";
+
 import Cart from "../Cart/Cart";
+
 import "./Navbar.scss";
 
 const Navbar = () => {
-  const products = useSelector((state) => state.cart.products);
-  const isCartOpen = useSelector((state) => state.cart.cartOpen);
+  const products = useSelector(
+    (state) => state.cart.products
+  );
+
+  const wishlistProducts = useSelector(
+    (state) => state.wishlist.products
+  );
+
+  const isCartOpen = useSelector(
+    (state) => state.cart.cartOpen
+  );
 
   const location = useLocation().pathname;
   const dispatch = useDispatch();
@@ -19,6 +39,8 @@ const Navbar = () => {
     (total, item) => total + item.quantity,
     0
   );
+
+  const wishlistCount = wishlistProducts.length;
 
   useEffect(() => {
     dispatch(handleCart(false));
@@ -67,7 +89,9 @@ const Navbar = () => {
   };
 
   return (
-    <header className={`navbar ${isScrolled ? "scrolled" : ""}`}>
+    <header
+      className={`navbar ${isScrolled ? "scrolled" : ""}`}
+    >
       <div className="wrapper">
         <div className="brand">
           <Link className="link" to="/">
@@ -75,47 +99,91 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <nav className="mainNav">
-          <NavLink className="link navLink" to="/products/1">
+        <nav
+          className="categoryNav"
+          aria-label="Product categories"
+        >
+          <NavLink
+            className="categoryLink"
+            to="/products/1"
+          >
             Women
           </NavLink>
 
-          <NavLink className="link navLink" to="/products/2">
+          <NavLink
+            className="categoryLink"
+            to="/products/2"
+          >
             Men
           </NavLink>
 
-          <NavLink className="link navLink" to="/products/3">
+          <NavLink
+            className="categoryLink"
+            to="/products/3"
+          >
             Children
           </NavLink>
         </nav>
 
         <div className="actions">
-          <NavLink className="link actionLink" to="/">
-            Home
-          </NavLink>
-
-          <NavLink className="link actionLink" to="/about">
-            About
-          </NavLink>
-
-          <button
-            className="actionLink contactBtn"
-            type="button"
-            onClick={scrollToFooter}
+          <nav
+            className="pageNav"
+            aria-label="Main navigation"
           >
-            Contact
-          </button>
+            <NavLink
+              className="pageLink"
+              to="/"
+              end
+            >
+              Home
+            </NavLink>
 
-          <button
-            className="cartIcon"
-            type="button"
-            aria-label="Open shopping bag"
-            onClick={() => dispatch(handleCart(!isCartOpen))}
-          >
-            <ShoppingCartOutlinedIcon />
+            <NavLink
+              className="pageLink"
+              to="/about"
+            >
+              About
+            </NavLink>
 
-            {productsCount > 0 && <span>{productsCount}</span>}
-          </button>
+            <button
+              className="pageLink contactBtn"
+              type="button"
+              onClick={scrollToFooter}
+            >
+              Contact
+            </button>
+          </nav>
+
+          <div className="utilityActions">
+            <NavLink
+              className="utilityButton wishlistIcon"
+              to="/wishlist"
+              aria-label={`Open wishlist. ${wishlistCount} saved products`}
+            >
+              <FavoriteBorderIcon />
+
+              {wishlistCount > 0 && (
+                <span>{wishlistCount}</span>
+              )}
+            </NavLink>
+
+            <button
+              className={`utilityButton cartIcon ${
+                isCartOpen ? "utilityButton--active" : ""
+              }`}
+              type="button"
+              aria-label={`Open shopping cart. ${productsCount} products`}
+              onClick={() =>
+                dispatch(handleCart(!isCartOpen))
+              }
+            >
+              <ShoppingCartOutlinedIcon />
+
+              {productsCount > 0 && (
+                <span>{productsCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
