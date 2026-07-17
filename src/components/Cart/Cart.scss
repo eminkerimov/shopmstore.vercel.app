@@ -1,13 +1,13 @@
 .miniCart {
   position: fixed;
-  top: 88px;
+  top: 82px;
   right: 24px;
   z-index: 998;
 
   width: 420px;
   max-width: calc(100% - 48px);
   min-height: 360px;
-  max-height: calc(100dvh - 100px);
+  max-height: calc(100dvh - 116px);
 
   display: flex;
   flex-direction: column;
@@ -16,8 +16,13 @@
   overflow: hidden;
 
   background: #ffffff;
-  border: 1px solid rgba(23, 23, 23, 0.08);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(23, 23, 23, 0.06);
+  border-radius: 12px;
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.16),
+    0 6px 18px rgba(15, 23, 42, 0.07);
+
+  animation: miniCartIn 0.22s ease;
 
   &__header {
     flex-shrink: 0;
@@ -85,17 +90,17 @@
 
   &__item {
     display: grid;
-    grid-template-columns: 78px minmax(0, 1fr) 26px;
+    grid-template-columns: 72px minmax(0, 1fr) 26px;
     gap: 15px;
 
     flex-shrink: 0;
 
-    padding: 20px 0;
+    padding: 16px 0;
     border-bottom: 1px solid #ececec;
 
     img {
-      width: 78px;
-      height: 100px;
+      width: 72px;
+      height: 92px;
 
       display: block;
 
@@ -123,7 +128,7 @@
     p {
       display: -webkit-box;
 
-      margin: 0 0 14px;
+      margin: 0 0 12px;
       overflow: hidden;
 
       color: #888888;
@@ -132,6 +137,7 @@
 
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
   }
 
@@ -145,6 +151,8 @@
     font-size: 12px;
 
     strong {
+      padding-right: 4px;
+
       color: #202020;
       font-size: 14px;
       font-weight: 600;
@@ -164,9 +172,12 @@
     border: none;
     background: transparent;
     color: #999999;
+    opacity: 0.55;
 
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
 
     svg {
       font-size: 18px;
@@ -174,6 +185,7 @@
 
     &:hover {
       color: #171717;
+      opacity: 1;
     }
   }
 
@@ -191,7 +203,7 @@
     align-items: center;
     justify-content: space-between;
 
-    padding: 17px 0;
+    padding: 18px 0 20px;
 
     color: #353535;
     font-size: 14px;
@@ -205,10 +217,11 @@
 
   &__primary {
     width: 100%;
-    min-height: 48px;
+    min-height: 46px;
 
-    border: 1px solid #171717;
-    background: #171717;
+    border: 1px solid #202020;
+    border-radius: 8px;
+    background: #202020;
     color: #ffffff;
 
     font-family: inherit;
@@ -218,10 +231,13 @@
     text-transform: uppercase;
 
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease;
 
     &:hover {
       background: #303030;
+      border-color: #303030;
     }
   }
 
@@ -310,6 +326,7 @@
     margin-top: 4px;
 
     border: 1px solid #171717;
+    border-radius: 8px;
     background: #ffffff;
     color: #171717;
 
@@ -335,15 +352,29 @@
   }
 }
 
+@keyframes miniCartIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media only screen and (max-width: 767px) and (min-width: 551px) {
   .miniCart {
-    top: 88px;
+    top: 82px;
     right: 20px;
 
     width: 400px;
     max-width: calc(100% - 40px);
     min-height: 360px;
     max-height: calc(100dvh - 108px);
+
+    border-radius: 12px;
   }
 }
 
@@ -361,7 +392,10 @@
     max-height: none;
 
     border: none;
+    border-radius: 0;
     box-shadow: none;
+
+    animation: none;
 
     &__header {
       padding: 22px 18px 20px;
@@ -379,6 +413,8 @@
       grid-template-columns: 70px minmax(0, 1fr) 24px;
       gap: 13px;
 
+      padding: 16px 0;
+
       img {
         width: 70px;
         height: 92px;
@@ -389,8 +425,13 @@
       padding: 0 18px 16px;
     }
 
+    &__summary {
+      padding: 17px 0 18px;
+    }
+
     &__primary {
       min-height: 45px;
+      border-radius: 6px;
     }
 
     &--empty {
@@ -401,6 +442,10 @@
     &__empty {
       align-content: center;
       padding: 24px 18px;
+    }
+
+    &__emptyAction {
+      border-radius: 6px;
     }
   }
 }

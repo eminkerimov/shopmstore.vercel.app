@@ -47,9 +47,10 @@ const Cart = () => {
           <h2>Your bag</h2>
         </div>
 
-        <span className="miniCart__count">
-          {products.length} {products.length === 1 ? "item" : "items"}
-        </span>
+<span className="miniCart__count">
+  {products.length}{" "}
+  {products.length === 1 ? "product" : "products"}
+</span>
       </div>
 
       {products.length > 0 ? (
