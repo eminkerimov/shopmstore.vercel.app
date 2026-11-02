@@ -1,7 +1,7 @@
 .aboutPage {
   width: 100%;
   overflow-x: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .aboutHero {
@@ -57,7 +57,7 @@
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    color: #fff;
+    color: var(--color-inverse);
     animation: aboutReveal 0.8s ease both;
   }
 
@@ -129,7 +129,7 @@
     > span {
       display: block;
       margin-bottom: 24px;
-      color: #2d3342;
+      color: var(--color-text);
       font-size: 11px;
       line-height: 1;
       font-weight: 800;
@@ -140,7 +140,7 @@
     h2 {
       max-width: 520px;
       margin: 0;
-      color: #17191f;
+      color: var(--color-text);
       font-size: clamp(48px, 4.6vw, 70px);
       line-height: 1;
       font-weight: 600;
@@ -150,7 +150,7 @@
     p {
       max-width: 470px;
       margin: 26px 0 0;
-      color: #5f6672;
+      color: var(--color-text-secondary);
       font-size: 15px;
       line-height: 1.7;
     }
@@ -174,13 +174,13 @@
         padding-left: 12px;
 
         .stepNumber {
-          color: #2879fe;
+          color: var(--color-accent);
         }
       }
 
       .stepNumber {
         padding-top: 5px;
-        color: #858c97;
+        color: var(--color-text-muted);
         font-size: 12px;
         font-weight: 700;
         transition: color 0.25s ease;
@@ -188,7 +188,7 @@
 
       h3 {
         margin: 0 0 10px;
-        color: #20242d;
+        color: var(--color-text);
         font-size: 24px;
         font-weight: 700;
       }
@@ -196,7 +196,7 @@
       p {
         max-width: 560px;
         margin: 0;
-        color: #5f6672;
+        color: var(--color-text-secondary);
         font-size: 15px;
         line-height: 1.65;
       }

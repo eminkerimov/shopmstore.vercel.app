@@ -1,106 +1,61 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { startProductImageTransition } from "../../helpers/productImageTransition";
 import { useDispatch, useSelector } from "react-redux";
-
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-
 import { toggleWishlist } from "../../redux/wishlistReducer";
-
+import { getProductDisplay, formatProductPrice } from "../../helpers/product";
 import "./Card.scss";
 
 const Card = ({ item }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const product = getProductDisplay(item);
+  const wishlistProducts = useSelector((state) => state.wishlist.products);
+  const [announcement, setAnnouncement] = useState("");
+  const isInWishlist = wishlistProducts.some((saved) => String(saved.id) === String(product.id));
 
-  const wishlistProducts = useSelector(
-    (state) => state.wishlist.products
-  );
-
-  const previousPrice = ((item?.price * 100) / 70).toFixed(2);
-
-  const isInWishlist = wishlistProducts.some(
-    (product) => String(product.id) === String(item.id)
-  );
+  const openProduct = (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const transition = startProductImageTransition(event.currentTarget.closest(".card"), product.id);
+    if (!transition) return;
+    event.preventDefault();
+    navigate("/product/" + product.id, { state: { productImageTransition: { id: String(product.id), src: transition.src } } });
+  };
 
   const handleWishlist = () => {
-    dispatch(
-      toggleWishlist({
-        id: item.id,
-        title: item.title,
-        desc: item.desc,
-        price: item.price,
-        img: item.img,
-        img2: item.img2,
-        category: item.category,
-        sub_category: item.sub_category,
-        type: item.type,
-        isNew: item.isNew,
-      })
-    );
+    dispatch(toggleWishlist(product));
+    setAnnouncement(`${product.title} ${isInWishlist ? "removed from" : "added to"} wishlist.`);
   };
 
   return (
     <article className="card">
       <div className="cardMedia">
-        <Link
-          className="cardImageLink"
-          to={`/product/${item.id}`}
-        >
-          <div className="image">
-            {item?.isNew && (
-              <span className="newBadge">New Season</span>
-            )}
-
-            <img
-              src={item?.img}
-              alt={item?.title || "Product"}
-              className="mainImg"
-            />
-
-            <img
-              src={item?.img2}
-              alt=""
-              className="secondImg"
-            />
+        <Link className="cardImageLink" to={`/product/${product.id}`} onClick={openProduct} aria-label={`View ${product.title}`}>
+          <div className={`image ${product.img2 ? "image--alternate" : ""}`}>
+            {product.isNew && <span className="newBadge">New season</span>}
+            <img src={product.img} alt={product.title || "Product"} className="mainImg" loading="lazy" decoding="async" />
+            {product.img2 && <img src={product.img2} alt="" className="secondImg" loading="lazy" decoding="async" />}
           </div>
         </Link>
-
         <button
           type="button"
-          className={`wishlistButton ${
-            isInWishlist ? "wishlistButton--active" : ""
-          }`}
+          className={`wishlistButton ${isInWishlist ? "wishlistButton--active" : ""}`}
           onClick={handleWishlist}
-          aria-label={
-            isInWishlist
-              ? "Remove product from wishlist"
-              : "Add product to wishlist"
-          }
+          aria-label={`${isInWishlist ? "Remove" : "Save"} ${product.title} ${isInWishlist ? "from" : "to"} wishlist`}
           aria-pressed={isInWishlist}
         >
-          {isInWishlist ? (
-            <FavoriteIcon />
-          ) : (
-            <FavoriteBorderIcon />
-          )}
+          {isInWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </button>
+        <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       </div>
-
-      <Link
-        className="cardInfoLink"
-        to={`/product/${item.id}`}
-      >
+      <Link className="cardInfoLink" to={`/product/${product.id}`} onClick={openProduct}>
         <div className="cardInfo">
-          <h2>{item?.title}</h2>
-
+          <h2>{product.title}</h2>
           <div className="prices">
-            <span className="previousPrice">
-              ${previousPrice}
-            </span>
-
-            <span className="currentPrice">
-              ${item?.price}
-            </span>
+            {product.previousPrice && <span className="previousPrice"><span className="sr-only">Previous price: </span>{formatProductPrice(product.previousPrice)}</span>}
+            <span className="currentPrice">{formatProductPrice(product.price)}</span>
           </div>
         </div>
       </Link>

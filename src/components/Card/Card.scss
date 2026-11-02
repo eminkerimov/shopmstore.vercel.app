@@ -1,3 +1,5 @@
+@use "../../styles/mixins" as ui;
+
 .cardImageLink,
 .cardInfoLink {
   display: block;
@@ -12,6 +14,7 @@
 
 .card {
   width: 240px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -20,15 +23,16 @@
     transform 0.28s ease,
     filter 0.28s ease;
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     transform: translateY(-6px);
     filter: drop-shadow(0 14px 24px rgba(45, 51, 66, 0.12));
 
     h2 {
-      color: #2879fe;
+      color: var(--color-accent);
     }
 
-    .image {
+    .image--alternate {
       .mainImg {
         opacity: 0;
       }
@@ -60,7 +64,8 @@
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(10px);
-    color: #2d3342;
+
+    color: var(--color-text);
     cursor: pointer;
     box-shadow: 0 6px 18px rgba(45, 51, 66, 0.16);
     transition:
@@ -76,8 +81,8 @@
 
     &:hover {
       transform: scale(1.08);
-      background: #fff;
-      color: #e5484d;
+      background: var(--color-surface);
+      color: var(--color-danger);
       box-shadow: 0 8px 22px rgba(45, 51, 66, 0.22);
     }
 
@@ -86,13 +91,13 @@
     }
 
     &--active {
-      border-color: #e5484d;
-      background: #e5484d;
-      color: #fff;
+      border-color: var(--color-danger);
+      background: var(--color-danger);
+      color: var(--color-inverse);
 
       &:hover {
-        background: #d93d42;
-        color: #fff;
+        background: var(--color-danger-hover);
+        color: var(--color-inverse);
       }
     }
   }
@@ -100,10 +105,11 @@
   .image {
     position: relative;
     width: 100%;
-    height: 400px;
+    height: auto;
+    aspect-ratio: 3 / 4;
     overflow: hidden;
-    border-radius: 14px;
-    background: #f4f4f4;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
 
     img {
       position: absolute;
@@ -162,7 +168,7 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    color: #171717;
+    color: var(--color-text);
     font-size: 16px;
     line-height: 1.4;
     font-weight: 600;
@@ -175,14 +181,14 @@
     gap: 11px;
 
     .previousPrice {
-      color: #a3a3a3;
+      color: var(--color-text-muted);
       font-size: 14px;
       font-weight: 500;
       text-decoration: line-through;
     }
 
     .currentPrice {
-      color: #171717;
+      color: var(--color-text);
       font-size: 18px;
       font-weight: 800;
       letter-spacing: -0.2px;
@@ -195,7 +201,8 @@
     width: 300px;
     margin-bottom: 0;
 
-    &:hover {
+    &:hover,
+    &:focus-within {
       transform: none;
       filter: none;
     }
@@ -210,7 +217,38 @@
     }
 
     .image {
-      height: 400px;
+      height: auto;
     }
+  }
+}
+
+
+.card .wishlistButton--active svg {
+  animation: wishlist-feedback var(--motion-slow) var(--ease-out);
+}
+
+@keyframes wishlist-feedback {
+  0% { transform: scale(0.8); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+    filter: none;
+  }
+
+  .card .wishlistButton:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card:hover,
+  .card:focus-within,
+  .card .wishlistButton:hover {
+    transform: none;
   }
 }

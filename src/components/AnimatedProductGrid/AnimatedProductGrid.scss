@@ -1,0 +1,23 @@
+.animatedProductGrid {
+  position: relative;
+  align-content: start;
+  overflow-anchor: none;
+}
+
+.animatedProductGrid__item {
+  min-width: 0;
+  align-self: start;
+
+  > .card {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.animatedProductGrid__ghost {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+}

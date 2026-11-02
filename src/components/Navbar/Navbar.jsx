@@ -51,7 +51,7 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
     return () => {
@@ -59,32 +59,12 @@ const Navbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handleBodyScroll = () => {
-      const isSmallScreen = window.innerWidth <= 550;
-
-      if (isCartOpen && isSmallScreen) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
-    };
-
-    handleBodyScroll();
-
-    window.addEventListener("resize", handleBodyScroll);
-
-    return () => {
-      window.removeEventListener("resize", handleBodyScroll);
-      document.body.style.overflow = "";
-    };
-  }, [isCartOpen]);
 
   const scrollToFooter = () => {
     const footer = document.querySelector(".footer");
 
     if (footer) {
-      footer.scrollIntoView({ behavior: "smooth" });
+      footer.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     }
   };
 
@@ -163,7 +143,7 @@ const Navbar = () => {
               <FavoriteBorderIcon />
 
               {wishlistCount > 0 && (
-                <span>{wishlistCount}</span>
+                <span key={wishlistCount} aria-hidden="true">{wishlistCount}</span>
               )}
             </NavLink>
 
@@ -173,6 +153,8 @@ const Navbar = () => {
               }`}
               type="button"
               aria-label={`Open shopping cart. ${productsCount} products`}
+              aria-haspopup="dialog"
+              aria-expanded={isCartOpen}
               onClick={() =>
                 dispatch(handleCart(!isCartOpen))
               }
@@ -180,14 +162,14 @@ const Navbar = () => {
               <ShoppingCartOutlinedIcon />
 
               {productsCount > 0 && (
-                <span>{productsCount}</span>
+                <span key={productsCount} aria-hidden="true">{productsCount}</span>
               )}
             </button>
           </div>
         </div>
       </div>
 
-      {isCartOpen && <Cart />}
+      <Cart open={isCartOpen} />
     </header>
   );
 };

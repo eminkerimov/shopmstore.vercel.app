@@ -1,3 +1,5 @@
+@use "../../styles/mixins" as ui;
+
 .slider {
   position: relative;
   width: 100%;
@@ -6,6 +8,7 @@
   max-height: 860px;
   overflow: hidden;
   background: #111722;
+  touch-action: pan-y;
 
   .sliderTrack {
     width: 100%;
@@ -58,7 +61,7 @@
 
   .contentInner {
     width: min(620px, 55%);
-    color: #fff;
+    color: var(--color-inverse);
     opacity: 0;
     transform: translateY(34px);
     transition:
@@ -77,9 +80,10 @@
     margin-bottom: 22px;
     padding: 9px 15px;
     border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
+
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1.8px;
@@ -121,7 +125,8 @@
       transform 0.25s ease,
       box-shadow 0.25s ease;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       transform: translateY(-3px);
       box-shadow: 0 20px 42px rgba(40, 121, 254, 0.45);
 
@@ -154,7 +159,8 @@
     border-radius: 50%;
     background: rgba(15, 20, 31, 0.46);
     backdrop-filter: blur(14px);
-    color: #fff;
+
+    color: var(--color-inverse);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -165,8 +171,8 @@
       transform 0.2s ease;
 
     &:hover {
-      background: #2879fe;
-      border-color: #2879fe;
+      background: var(--color-accent);
+      border-color: var(--color-accent);
       transform: translateY(-2px);
     }
   }
@@ -174,26 +180,34 @@
   .sliderDots {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0;
   }
 
   .sliderDot {
-    width: 8px;
-    height: 8px;
+    position: relative;
+    width: 28px;
+    height: 44px;
     padding: 0;
     border: none;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-pill);
+    background: transparent;
     cursor: pointer;
-    transition:
-      width 0.3s ease,
-      background 0.3s ease;
 
-    &.active {
-      width: 28px;
-      background: #fff;
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 18px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.5);
+      transition: transform var(--motion-fast) ease, background var(--motion-fast) ease;
+    }
+
+    &.active::before {
+      background: var(--color-inverse);
+      transform: scaleX(2.4);
     }
   }
+
 }
 
 @media only screen and (max-width: 991px) {
@@ -315,5 +329,15 @@
       width: 40px;
       height: 40px;
     }
+  }
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .slider .shopButton:hover,
+  .slider .shopButton:focus-visible,
+  .slider .shopButton:hover svg,
+  .slider .shopButton:focus-visible svg,
+  .slider .arrowButton:hover {
+    transform: none;
   }
 }

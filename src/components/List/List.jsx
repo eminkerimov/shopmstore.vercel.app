@@ -1,44 +1,27 @@
-import React, { useState, useEffect } from "react";
-import "./List.scss";
+import React from "react";
 import Card from "../Card/Card";
-import useFetch from "../../custom/useFetch";
+import AsyncState, { ProductSkeleton } from "../AsyncState/AsyncState";
+import AnimatedProductGrid from "../AnimatedProductGrid/AnimatedProductGrid";
+import "./List.scss";
 
-const List = ({ subCats, maxPrice, sort, catId }) => {
-  const [filteredData, setFilteredData] = useState([]);
-
-  const { data, loading } = useFetch(
-    `/product?category=${catId}&sortBy=price&order=${sort}`
-  );
-
-useEffect(() => {
-  setFilteredData(data);
-
-  if (data?.length) {
-    if (subCats.length) {
-      const newData = data.filter(
-        (item) =>
-          subCats.includes(item.sub_category) &&
-          item.price <= maxPrice
-      );
-
-      setFilteredData(newData);
-    } else {
-      const newData = data.filter(
-        (item) => item.price <= maxPrice
-      );
-
-      setFilteredData(newData);
-    }
-  }
-}, [data, subCats, maxPrice, catId]);
-
-  return (
-    <div className="list">
-      {loading
-        ? "loading"
-        : filteredData?.map((item) => <Card item={item} key={item.id} />)}
-    </div>
-  );
-};
+const List = ({ products = [], loading, error, hasActiveFilters, onReset, onRetry }) => (
+  <AnimatedProductGrid
+    className="list"
+    items={loading || error ? [] : products}
+    renderItem={(item) => <Card item={item} />}
+    animateChanges={!loading && !error}
+    fallback={loading ? (
+      <ProductSkeleton count={8} />
+    ) : error ? (
+      <AsyncState title="Collection unavailable" message="We couldn't load this collection. Check your connection and try again." onRetry={onRetry} />
+    ) : (
+      <AsyncState
+        title={hasActiveFilters ? "No matching products" : "No products yet"}
+        message={hasActiveFilters ? "Try another search, remove a filter or increase your price limit." : "This collection is currently empty. Explore another collection."}
+        action={hasActiveFilters ? <button type="button" onClick={onReset}>Clear search and filters</button> : undefined}
+      />
+    )}
+  />
+);
 
 export default List;

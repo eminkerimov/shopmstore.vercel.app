@@ -6,6 +6,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import Card from "../../components/Card/Card";
+import AnimatedProductGrid from "../../components/AnimatedProductGrid/AnimatedProductGrid";
 
 import "./Wishlist.scss";
 
@@ -70,11 +71,11 @@ const Wishlist = () => {
       </section>
 
       <section className="wishlist__content">
-        <div className="wishlist__grid">
-          {products.map((product) => (
-            <Card key={product.id} item={product} />
-          ))}
-        </div>
+        <AnimatedProductGrid
+          className="wishlist__grid"
+          items={products}
+          renderItem={(product) => <Card item={product} />}
+        />
       </section>
     </main>
   );

@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# M-store
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A responsive fashion storefront built as a frontend portfolio. The focus is a complete browse-to-checkout journey, accessible interactions and predictable shopping state.
 
-## Available Scripts
+[Live demo](https://shopmstore.vercel.app)
 
-In the project directory, you can run:
+Checkout and newsletter subscriptions are simulated. There is no payment provider, email delivery or order backend.
 
-### `npm start`
+## Run locally
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Node.js 22 is specified in `package.json`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```powershell
+npm.cmd ci
+npm.cmd start
+```
 
-### `npm test`
+The development server opens on `http://localhost:3000`. On macOS/Linux, use `npm` in place of `npm.cmd`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```powershell
+npm.cmd run build
+npm.cmd run test:ci
+```
 
-### `npm run build`
+The production build is written to `build/`. Hosting must route application paths such as `/product/1` and `/cart` to `index.html`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Experience
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Responsive catalog with search, price and category filters, sorting, result counts and active filter chips.
+- Filters stored in the URL, including browser Back/Forward and refresh support.
+- Product gallery with keyboard and touch navigation and image enlargement.
+- Size/color selection when those options exist in the product data.
+- Cart variants, quantity controls, derived totals, removal undo and a persistent wishlist.
+- Demo checkout with validation, processing and a dedicated confirmation.
+- Loading skeletons, empty states, recoverable request errors and missing-page handling.
+- Drawers with Escape, focus trapping and focus restoration.
+- Carousel navigation, autoplay with pause on focus/hover and reduced-motion support.
+- Newsletter validation and a local confirmation without an outgoing request.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Home collection links use the existing catalog route:
 
-### `npm run eject`
+- `/products/all?collection=sale` includes only products whose API previous price is greater than the current price.
+- `/products/all?collection=new` includes only products marked `isNew`.
+- `/products/all?sub=shoes` and `/products/all?sub=accessories` show those product types across the collection.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The all-product catalog reads `/product` and derives its category filters from the response. Collection chips can be removed or cleared, and the selection survives refresh and browser Back/Forward. Sale can be empty when the API has no reduced prices.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Architecture
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+| Area | Responsibility | Entry point |
+| --- | --- | --- |
+| Routing | Page routes and shared layout | `src/App.js` |
+| Catalog | URL parsing, pure filtering and responsive controls | `src/pages/Products/` |
+| Requests | Axios requests with cancellation and retry | `src/custom/useFetch.js` |
+| Product data | API product fields, optional prices and available variants | `src/helpers/product.js` |
+| Shopping state | Cart and wishlist actions; derived quantities/totals | `src/redux/`, `src/helpers/cart.js` |
+| Persistence | Cart items and wishlist, excluding open panels and undo state | `src/redux/store.js` |
+| Visual system | Colors, spacing, controls, motion and shared Sass mixins | `src/styles/` |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The stack is React 18, React Router 6, Redux Toolkit, Redux Persist, Axios, Sass and selected Material UI primitives. The existing Create React App toolchain is retained.
 
-## Learn More
+### Decisions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Client-side filtering:** the URL describes the active selection for this small MockAPI collection. A larger catalog would need server-side search, filtering and pagination.
+- **Separate remote and shopping state:** request effects abort on unmount or URL changes, and stale responses cannot overwrite the current route. Redux holds cart and wishlist interactions.
+- **Derived totals:** totals and item counts are computed from current cart contents. Different size/color combinations have distinct identities.
+- **Selective persistence:** refresh restores shopping choices while temporary dialogs and removal feedback start closed.
+- **Reduced motion:** user preferences disable animation and carousel autoplay.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## MockAPI
 
-### Code Splitting
+The base URL is configured in `src/helpers/baseURL.js`. Requests read `/product`, `/product/:id` and `/category/:id`. The application does not edit MockAPI records or simulate alternative API responses.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Product titles, descriptions and image URLs come from the API without rewritten copy. Brands are taken from explicit API fields, without inference from the title.
 
-### Analyzing the Bundle Size
+Optional product fields:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```json
+{
+  "sizes": ["XS", "S", "M", "L", "XL"],
+  "colors": ["Black", "Natural"],
+  "vendor": "Your actual product brand",
+  "compareAtPrice": 79.99
+}
+```
 
-### Making a Progressive Web App
+- `sizes` and `colors` accept arrays of strings or objects with `label`, `name` or `value`. Controls appear only when the API provides options; missing groups are omitted and do not block purchase. Available options must be selected before adding the product.
+- `vendor` or `brand` supplies the product brand. Missing brands are not invented.
+- `compareAtPrice`, `previousPrice` or `oldPrice` supplies a previous price. It appears only when valid and greater than the current price.
+- `isNew` accepts `true` or the string `"true"`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Checkout
 
-### Advanced Configuration
+Use **Fill test details** to populate the form. Invalid fields show validation messages and leave the cart unchanged. A valid submission opens the order confirmation and clears the cart.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Only the order summary needed for confirmation is retained for the current browser session. Payment fields are not sent or persisted.
 
-### Deployment
+## Validation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Jest and React Testing Library cover request races and recovery, catalog query handling, cart variants and totals, checkout validation, newsletter validation and carousel accessibility.
 
-### `npm run build` fails to minify
+```powershell
+npm.cmd run test:ci
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For manual review:
+
+1. Open a collection, search and filter, refresh, then use Back/Forward.
+2. Where API options exist, choose two variants and confirm they remain separate cart items.
+3. Open a product without variant fields and confirm it can be added directly.
+4. Change quantities, remove an item and restore it with Undo.
+5. Submit invalid details, confirm the cart is unchanged, then complete the demo checkout.
+6. Use the mobile menu, filters and cart with Tab and Escape.
+7. Enable reduced motion and confirm the carousel stays still until manually navigated.

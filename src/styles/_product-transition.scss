@@ -1,0 +1,21 @@
+.productImageTransition {
+  position: fixed;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+  background: var(--color-surface-muted);
+  will-change: left, top, width, height, border-radius;
+  box-shadow: 0 12px 36px rgb(17 24 39 / 8%);
+
+  > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .productImageTransition { display: none; }
+}

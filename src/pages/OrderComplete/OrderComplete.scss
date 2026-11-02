@@ -1,0 +1,125 @@
+@use "../../styles/mixins" as ui;
+
+.orderComplete {
+  padding: var(--space-12) var(--page-gutter) var(--space-20);
+  min-height: calc(100vh - var(--header-height));
+
+  &__card {
+    @include ui.panel;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: var(--space-12);
+    text-align: center;
+  }
+
+  &__icon {
+    color: var(--color-accent);
+    width: 64px !important;
+    height: 64px !important;
+    margin-bottom: var(--space-5);
+  }
+
+  &__eyebrow {
+    @include ui.eyebrow;
+    display: block;
+  }
+
+  h1 {
+    @include ui.heading;
+    margin: var(--space-4) 0;
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+  }
+
+  &__details {
+    margin: var(--space-8) 0;
+    text-align: left;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    dt {
+      color: var(--color-text-secondary);
+    }
+
+    dd {
+      margin: 0;
+      font-weight: 600;
+    }
+  }
+
+  &__items {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-8);
+    text-align: left;
+
+    li {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: center;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    img {
+      width: 48px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+
+    strong, span {
+      display: block;
+      font-size: 12px;
+    }
+
+    span {
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    b {
+      font-size: 13px;
+    }
+  }
+
+  &__continue {
+    @include ui.button;
+  }
+}
+
+@media (max-width: 550px) {
+  .orderComplete {
+    padding: var(--space-6) var(--space-4);
+
+    &__card {
+      padding: var(--space-8) var(--space-5);
+    }
+
+    &__details {
+      font-size: 12px;
+    }
+
+    &__items li {
+      grid-template-columns: 40px minmax(0, 1fr);
+
+      b {
+        grid-column: 2;
+      }
+
+      img {
+        width: 40px;
+      }
+    }
+  }
+}

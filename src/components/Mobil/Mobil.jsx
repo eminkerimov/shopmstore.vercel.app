@@ -1,150 +1,98 @@
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
-
-import {
-  Link,
-  NavLink,
-  useLocation,
-} from "react-router-dom";
-
+import React, { useEffect, useRef, useState } from "react";
+import { Drawer, useMediaQuery } from "@mui/material";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import "./Mobil.scss";
 
 const Mobil = () => {
   const [mobilOpen, setMobilOpen] = useState(false);
   const location = useLocation().pathname;
+  const isMobile = useMediaQuery("(max-width:767px)");
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const scrollAfterClose = useRef(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setMobilOpen(false);
   }, [location]);
 
   useEffect(() => {
-    document.body.style.overflow = mobilOpen ? "hidden" : "";
+    if (!isMobile) setMobilOpen(false);
+  }, [isMobile]);
 
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobilOpen]);
-
-  const handleToggle = () => {
-    setMobilOpen((current) => !current);
-  };
-
-  const handleClose = () => {
-    setMobilOpen(false);
-  };
-
-  const scrollToFooter = () => {
-    const footer = document.querySelector(".footer");
-
-    if (footer) {
-      footer.scrollIntoView({ behavior: "smooth" });
-      setMobilOpen(false);
-    }
-  };
+  const handleClose = () => setMobilOpen(false);
 
   return (
-    <div className={mobilOpen ? "mobil menu-opened" : "mobil"}>
-      <button
-        type="button"
-        className="burger-container"
-        onClick={handleToggle}
-        aria-label={
-          mobilOpen
-            ? "Close mobile menu"
-            : "Open mobile menu"
-        }
-        aria-expanded={mobilOpen}
-      >
-        <span />
-        <span />
-      </button>
-
-      <button
-        type="button"
-        className="menuOverlay"
-        onClick={handleClose}
-        aria-label="Close mobile menu"
-      />
-
-      <aside className="menuPanel">
-        <Link
-          className="menuLogo"
-          to="/"
-          onClick={handleClose}
+    <>
+      <div className="mobil">
+        <button
+          type="button"
+          className="burger-container"
+          onClick={() => setMobilOpen(true)}
+          aria-label="Open mobile menu"
+          aria-expanded={mobilOpen}
+          aria-controls={mobilOpen ? "mobile-navigation" : undefined}
+          aria-haspopup="dialog"
         >
-          M-store
-        </Link>
+          <span />
+          <span />
+        </button>
+      </div>
+
+      <Drawer
+        className="mobileMenu"
+        anchor="left"
+        open={isMobile && mobilOpen}
+        onClose={handleClose}
+        transitionDuration={reducedMotion ? 0 : 280}
+        PaperProps={{
+          className: "menuPanel",
+          id: "mobile-navigation",
+          role: "dialog",
+          "aria-modal": true,
+          "aria-label": "Mobile navigation",
+        }}
+        SlideProps={{
+          onExited: () => {
+            if (scrollAfterClose.current) {
+              document.querySelector(".footer")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+              scrollAfterClose.current = false;
+            }
+          },
+        }}
+      >
+        <div className="menuHeader">
+          <Link className="menuLogo" to="/" onClick={handleClose}>M-store</Link>
+          <button type="button" className="menuClose" onClick={handleClose} aria-label="Close mobile menu">
+            <CloseOutlinedIcon />
+          </button>
+        </div>
 
         <div className="menuSection">
-          <span className="menuSectionTitle">
-            Shop
-          </span>
-
-          <nav
-            className="categoryMenu"
-            aria-label="Product categories"
-          >
-            <NavLink
-              className="categoryMenuLink"
-              to="/products/1"
-            >
-              Women
-            </NavLink>
-
-            <NavLink
-              className="categoryMenuLink"
-              to="/products/2"
-            >
-              Men
-            </NavLink>
-
-            <NavLink
-              className="categoryMenuLink"
-              to="/products/3"
-            >
-              Children
-            </NavLink>
+          <span className="menuSectionTitle">Shop</span>
+          <nav className="categoryMenu" aria-label="Product categories">
+            <NavLink className="categoryMenuLink" to="/products/1" onClick={handleClose}>Women</NavLink>
+            <NavLink className="categoryMenuLink" to="/products/2" onClick={handleClose}>Men</NavLink>
+            <NavLink className="categoryMenuLink" to="/products/3" onClick={handleClose}>Children</NavLink>
           </nav>
         </div>
 
         <div className="menuSection">
-          <span className="menuSectionTitle">
-            Explore
-          </span>
-
-          <nav
-            className="pageMenu"
-            aria-label="Main navigation"
-          >
-            <NavLink
-              className="pageMenuLink"
-              to="/"
-              end
-            >
-              Home
-            </NavLink>
-
-            <NavLink
-              className="pageMenuLink"
-              to="/about"
-            >
-              About
-            </NavLink>
-
+          <span className="menuSectionTitle">Explore</span>
+          <nav className="pageMenu" aria-label="Main navigation">
+            <NavLink className="pageMenuLink" to="/" end onClick={handleClose}>Home</NavLink>
+            <NavLink className="pageMenuLink" to="/about" onClick={handleClose}>About</NavLink>
             <button
               type="button"
               className="pageMenuLink contactBtn"
-              onClick={scrollToFooter}
-            >
-              Contact
-            </button>
+              onClick={() => {
+                scrollAfterClose.current = true;
+                handleClose();
+              }}
+            >Contact</button>
           </nav>
         </div>
-      </aside>
-    </div>
+      </Drawer>
+    </>
   );
 };
 

@@ -44,7 +44,6 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    animation: sectionReveal 0.7s ease both;
 
     .eyebrow {
       margin-bottom: 14px;
@@ -56,7 +55,7 @@
       text-transform: uppercase;
     }
 
-    h1 {
+    h2 {
       margin: 0;
       color: #111318;
       font-size: 46px;
@@ -104,14 +103,16 @@
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: repeat(4, 240px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     justify-content: space-between;
     align-items: start;
     column-gap: 32px;
     row-gap: 54px;
 
-    > .cardLink {
+    > .card {
       align-self: start;
+      width: 100%;
+      min-width: 0;
     }
 
     .status {
@@ -128,18 +129,6 @@
   }
 }
 
-@keyframes sectionReveal {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media only screen and (max-width: 1199px) {
   .featuredProducts {
     max-width: 900px;
@@ -150,7 +139,7 @@
     }
 
     .bottom {
-      grid-template-columns: repeat(3, 240px);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       justify-content: space-between;
     }
   }
@@ -168,13 +157,13 @@
     .top {
       margin-bottom: 48px;
 
-      h1 {
+      h2 {
         font-size: 38px;
       }
     }
 
     .bottom {
-      grid-template-columns: repeat(2, 240px);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       justify-content: space-around;
       row-gap: 46px;
     }
@@ -200,7 +189,7 @@
         letter-spacing: 2.3px;
       }
 
-      h1 {
+      h2 {
         font-size: 32px;
       }
 
@@ -215,7 +204,7 @@
     }
 
     .bottom {
-      grid-template-columns: 300px;
+      grid-template-columns: minmax(0, 320px);
       justify-content: center;
       row-gap: 40px;
     }
