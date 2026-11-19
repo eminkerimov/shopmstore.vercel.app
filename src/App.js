@@ -53,6 +53,7 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { index: true, element: <Home /> },
+      { path: "products/all", element: <Products isAllProducts /> },
       { path: "products/:id", element: <Products /> },
       { path: "product/:id", element: <Product /> },
       { path: "about", element: <About /> },

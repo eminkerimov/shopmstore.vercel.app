@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { Link, MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Categories from "../../components/Categories/Categories";
 import Products from "./Products";
@@ -42,12 +42,17 @@ beforeEach(() => {
 
 const renderCatalog = (url) => render(
   <MemoryRouter initialEntries={[url]}>
-    <Routes><Route path="/products/:id" element={<><Navigation /><Products /></>} /></Routes>
+    <Routes>
+      <Route path="/products/all" element={<><Navigation /><Products isAllProducts /></>} />
+      <Route path="/products/:id" element={<><Navigation /><Products /></>} />
+    </Routes>
   </MemoryRouter>
 );
 
 test("category navigation and Back restore search, filters and sort from the URL", () => {
   renderCatalog("/products/1?q=linen&sub=shirts&max=100&sort=desc");
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Women");
+  expect(screen.queryByRole("region", { name: "Collections" })).toBeNull();
   expect(screen.getByLabelText("Search this collection").value).toBe("linen");
   expect(screen.getByRole("checkbox", { name: "shirts" }).checked).toBe(true);
   expect(screen.getByLabelText("Sort by price").value).toBe("desc");
@@ -83,16 +88,16 @@ test("unknown categories do not construct a MockAPI request", () => {
 });
 
 test.each([
-  ["sale", "/products/all?collection=sale", "Sale", "Leather bag, Linen shirt"],
-  ["new arrivals", "/products/all?collection=new", "New arrivals", "Linen shoes, Linen shirt"],
-  ["shoes", "/products/all?sub=shoes", "Shoes", "Linen shoes, Everyday shoes"],
-  ["accessories", "/products/all?sub=accessories", "Accessories", "Leather bag"],
-])("the %s home tile opens the matching all-product selection", (tile, url, title, matchingProducts) => {
-  render(
+  ["sale", "/products/all?collection=sale", "Collections", "Sale", "Leather bag, Linen shirt"],
+  ["new arrivals", "/products/all?collection=new", "Collections", "New Arrivals", "Linen shoes, Linen shirt"],
+  ["shoes", "/products/all?sub=shoes", "Product type", "shoes", "Linen shoes, Everyday shoes"],
+  ["accessories", "/products/all?sub=accessories", "Product type", "accessories", "Leather bag"],
+])("the %s home tile opens the all-product catalog with its checkbox checked", (tile, url, group, checkbox, matchingProducts) => {
+  const { container } = render(
     <MemoryRouter initialEntries={["/"]}>
       <Routes>
         <Route path="/" element={<Categories />} />
-        <Route path="/products/:id" element={<><Navigation /><Products /></>} />
+        <Route path="/products/all" element={<><Navigation /><Products isAllProducts /></>} />
       </Routes>
     </MemoryRouter>
   );
@@ -100,7 +105,9 @@ test.each([
   expect(link.getAttribute("href")).toBe(url);
   fireEvent.click(link);
   expect(screen.getByTestId("location").textContent).toBe(url);
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(title);
+  expect(container.querySelector(".catalogHero")).toBeNull();
+  expect(screen.getByRole("heading", { level: 1 }).className).toBe("sr-only");
+  expect(within(screen.getByRole("region", { name: group })).getByRole("checkbox", { name: checkbox }).checked).toBe(true);
   expect(screen.getByTestId("matching-products").textContent).toBe(matchingProducts);
   expect(useFetch.mock.calls.some(([request]) => request === "/product")).toBe(true);
   expect(useFetch.mock.calls.some(([request]) => request?.startsWith("/category/"))).toBe(false);
@@ -111,19 +118,20 @@ test("all-product filters derive from the API and a removed collection restores 
   expect(screen.getByRole("checkbox", { name: "accessories" })).toBeTruthy();
   expect(screen.getByRole("checkbox", { name: "shirts" })).toBeTruthy();
   expect(screen.getByRole("checkbox", { name: "shoes" }).checked).toBe(true);
+  expect(screen.getByRole("checkbox", { name: "New Arrivals" }).checked).toBe(true);
   expect(screen.getByTestId("matching-products").textContent).toBe("Linen shoes");
 
-  fireEvent.click(screen.getByLabelText("Remove New arrivals filter"));
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Shoes");
+  fireEvent.click(screen.getByRole("checkbox", { name: "New Arrivals" }));
+  expect(screen.getByRole("checkbox", { name: "New Arrivals" }).checked).toBe(false);
   expect(screen.getByTestId("matching-products").textContent).toBe("Everyday shoes, Linen shoes");
 
   fireEvent.click(screen.getByText("Go back"));
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("New arrivals");
+  expect(screen.getByRole("checkbox", { name: "New Arrivals" }).checked).toBe(true);
   expect(screen.getByTestId("matching-products").textContent).toBe("Linen shoes");
 
   fireEvent.click(screen.getByText("Clear all"));
   expect(screen.getByTestId("location").textContent).toBe("/products/all?sort=desc");
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("All products");
+  expect(screen.queryByRole("button", { name: /Remove .* filter/ })).toBeNull();
   expect(screen.getByLabelText("Sort by price").value).toBe("desc");
 });
 
@@ -134,6 +142,6 @@ test("sale remains empty when the API provides no reduced prices and can be clea
   expect(screen.getByTestId("matching-products").textContent).toBe("");
   expect(screen.getByText("0 products").getAttribute("role")).toBe("status");
   fireEvent.click(screen.getByLabelText("Remove Sale filter"));
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("All products");
+  expect(screen.getByRole("checkbox", { name: "Sale" }).checked).toBe(false);
   expect(screen.getByTestId("matching-products").textContent).toContain("Linen shirt");
 });

@@ -1,4 +1,13 @@
 import React from "react";
+import { COLLECTION_LABELS } from "./catalogQuery";
+
+const FilterCheckbox = ({ value, label = value, checked, onChange }) => (
+  <label className="checkOption">
+    <input type="checkbox" value={value} checked={checked} onChange={onChange} />
+    <span className="checkOption__control" aria-hidden="true"><span /></span>
+    <span className="checkOption__label">{label}</span>
+  </label>
+);
 
 const CatalogFilters = ({
   headingId,
@@ -7,17 +16,20 @@ const CatalogFilters = ({
   categoriesError,
   onCategoriesRetry,
   selectedSubCats,
+  showCollections,
+  selectedCollections,
   maxPrice,
   priceLimit,
   hasActiveFilters,
   onCategoryChange,
+  onCollectionChange,
   onPriceChange,
   onReset,
 }) => (
   <>
-    <div className="catalogFilters__heading">
+    <div className={"catalogFilters__heading" + (showCollections ? " catalogFilters__heading--compact" : "")}>
       <div>
-        <span>Refine selection</span>
+        {!showCollections && <span>Refine selection</span>}
         <h2 id={headingId}>Filters</h2>
       </div>
       <button
@@ -30,6 +42,23 @@ const CatalogFilters = ({
       </button>
     </div>
 
+    {showCollections && (
+      <section
+        className={"filterCard " + (selectedCollections.length ? "filterCard--active" : "")}
+        aria-labelledby={headingId + "-collections"}
+      >
+        <div className="filterCard__header">
+          <h3 id={headingId + "-collections"}>Collections</h3>
+        </div>
+        <div className="filterOptions">
+          {Object.entries(COLLECTION_LABELS).map(([value, label]) => (
+            <FilterCheckbox key={value} value={value} label={label}
+              checked={selectedCollections.includes(value)} onChange={onCollectionChange} />
+          ))}
+        </div>
+      </section>
+    )}
+
     <section
       className={
         "filterCard " + (selectedSubCats.length ? "filterCard--active" : "")
@@ -37,28 +66,17 @@ const CatalogFilters = ({
       aria-labelledby={headingId + "-categories"}
     >
       <div className="filterCard__header">
-        <span className="filterCard__index" aria-hidden="true">01</span>
-        <h3 id={headingId + "-categories"}>Categories</h3>
+        {!showCollections && <span className="filterCard__index" aria-hidden="true">01</span>}
+        <h3 id={headingId + "-categories"}>{showCollections ? "Product type" : "Categories"}</h3>
       </div>
       <div className="filterOptions">
         {categoriesLoading ? (
-          <p className="catalogFilters__status">Loading categories...</p>
+          <p className="catalogFilters__status">{showCollections ? "Loading product types..." : "Loading categories..."}</p>
         ) : categoriesError ? (
-          <div className="catalogFilters__status" role="alert"><p>Categories unavailable.</p><button type="button" className="catalogFilters__retry" onClick={onCategoriesRetry}>Try again</button></div>
+          <div className="catalogFilters__status" role="alert"><p>{showCollections ? "Product types unavailable." : "Categories unavailable."}</p><button type="button" className="catalogFilters__retry" onClick={onCategoriesRetry}>Try again</button></div>
         ) : (
           categories.map((item) => (
-            <label className="checkOption" key={item}>
-              <input
-                type="checkbox"
-                value={item}
-                checked={selectedSubCats.includes(item)}
-                onChange={onCategoryChange}
-              />
-              <span className="checkOption__control" aria-hidden="true">
-                <span />
-              </span>
-              <span className="checkOption__label">{item}</span>
-            </label>
+            <FilterCheckbox key={item} value={item} checked={selectedSubCats.includes(item)} onChange={onCategoryChange} />
           ))
         )}
       </div>
@@ -71,7 +89,7 @@ const CatalogFilters = ({
       aria-labelledby={headingId + "-price"}
     >
       <div className="filterCard__header">
-        <span className="filterCard__index" aria-hidden="true">02</span>
+        {!showCollections && <span className="filterCard__index" aria-hidden="true">02</span>}
         <h3 id={headingId + "-price"}>Price range</h3>
       </div>
       <div className="priceFilter">

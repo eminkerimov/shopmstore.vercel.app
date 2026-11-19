@@ -11,15 +11,10 @@ import AsyncState from "../../components/AsyncState/AsyncState";
 import useFetch from "../../custom/useFetch";
 import CatalogFilters from "./CatalogFilters";
 import useCatalogResultScroll from "./useCatalogResultScroll";
-import { MAX_PRICE, readCatalogQuery, writeCatalogQuery, filterCatalogProducts, getCatalogSubCategories } from "./catalogQuery";
+import { COLLECTION_LABELS, MAX_PRICE, readCatalogQuery, writeCatalogQuery, filterCatalogProducts, getCatalogSubCategories } from "./catalogQuery";
 import "./Products.scss";
 
 const categoryContent = {
-  all: {
-    title: "All products",
-    image: "https://images.unsplash.com/photo-1483181957632-8bda974cbc91?auto=format&fit=crop&w=1800&q=85",
-    description: "Explore the complete collection, from everyday essentials to finishing touches.",
-  },
   1: {
     title: "Women",
     number: "01",
@@ -40,31 +35,12 @@ const categoryContent = {
   },
 };
 
-const collectionContent = {
-  sale: { title: "Sale", description: "Explore pieces with reduced prices from across the collection." },
-  new: { title: "New arrivals", description: "Discover the latest additions from across the collection." },
-};
-
-const subCategoryContent = {
-  shoes: {
-    title: "Shoes",
-    image: "https://cdn.dsmcdn.com/ty374/product/media/images/20220328/10/76982078/185505707/2/2_org_zoom.jpg",
-    description: "Explore footwear from across the collection.",
-  },
-  accessories: {
-    title: "Accessories",
-    image: "https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?q=80&w=1170&auto=format&fit=crop",
-    description: "Discover the finishing touches from across the collection.",
-  },
-};
-
-const Products = () => {
+const Products = ({ isAllProducts = false }) => {
   const { id: catId } = useParams();
-  const isAllProducts = catId === "all";
-  const validCategory = Object.prototype.hasOwnProperty.call(categoryContent, catId);
+  const validCategory = isAllProducts || Object.prototype.hasOwnProperty.call(categoryContent, catId);
   const [searchParams, setSearchParams] = useSearchParams();
   const queryState = useMemo(() => readCatalogQuery(searchParams), [searchParams]);
-  const { maxPrice, sort, selectedSubCats, query, collection } = queryState;
+  const { maxPrice, sort, selectedSubCats, query, selectedCollections } = queryState;
   const isMobile = useMediaQuery("(max-width:780px)", { noSsr: true });
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -86,11 +62,8 @@ const Products = () => {
       : Array.isArray(category?.subCategories) ? category.subCategories : [],
     [isAllProducts, data, category]
   );
-  const focusedSubCategory = selectedSubCats.length === 1 ? subCategoryContent[selectedSubCats[0]] : null;
-  const currentCategory = isAllProducts
-    ? { ...categoryContent.all, ...(collectionContent[collection] || focusedSubCategory || {}) }
-    : categoryContent[catId];
-  const activeFilterCount = selectedSubCats.length + (maxPrice < MAX_PRICE ? 1 : 0) + (collection ? 1 : 0);
+  const currentCategory = categoryContent[catId];
+  const activeFilterCount = selectedSubCats.length + selectedCollections.length + (maxPrice < MAX_PRICE ? 1 : 0);
   const hasSearch = Boolean(query.trim());
   const hasActiveFilters = activeFilterCount > 0 || hasSearch;
   const products = useMemo(
@@ -128,6 +101,10 @@ const Products = () => {
     const { value, checked } = event.target;
     updateQuery({ sub: checked ? [...selectedSubCats, value] : selectedSubCats.filter((item) => item !== value) });
   };
+  const handleCollectionChange = (event) => {
+    const { value, checked } = event.target;
+    updateQuery({ collection: checked ? [...selectedCollections, value] : selectedCollections.filter((item) => item !== value) });
+  };
   const resetFilters = () => updateQuery({ sub: [], max: null, q: null, collection: null });
   const filterProps = {
     categories: availableSubCategories,
@@ -135,10 +112,13 @@ const Products = () => {
     categoriesError: isAllProducts ? error : categoryError,
     onCategoriesRetry: isAllProducts ? refetch : refetchCategories,
     selectedSubCats,
+    showCollections: isAllProducts,
+    selectedCollections,
     maxPrice,
     priceLimit: MAX_PRICE,
     hasActiveFilters,
     onCategoryChange: handleCategoryChange,
+    onCollectionChange: handleCollectionChange,
     onPriceChange: (event) => updateQuery({ max: Number(event.target.value) }, { replace: true }),
     onReset: resetFilters,
   };
@@ -151,27 +131,32 @@ const Products = () => {
     );
   }
 
-  return (
-    <main className="products">
-      <section className="catalogHero" key={catId + "-" + currentCategory.title}>
-        <div className="catalogHero__visual">
-          <img src={currentCategory.image} alt={currentCategory.title + " collection"} />
-          <span className="catalogHero__visualIndex">{currentCategory.title}</span>
-        </div>
-        <div className="catalogHero__content">
-          <div className="catalogHero__top">
-            {currentCategory.number && <span className="catalogHero__number">{currentCategory.number}</span>}
-            <span className="catalogHero__eyebrow">M-store collection</span>
-          </div>
-          <div className="catalogHero__main">
-            <h1>{currentCategory.title}</h1>
-            <p>{currentCategory.description}</p>
-          </div>
-          <div className="catalogHero__bottom"><span>New season</span><span>Selected essentials</span></div>
-        </div>
-      </section>
+  const catalogLabel = isAllProducts ? "All products" : currentCategory.title + " collection";
+  const searchLabel = isAllProducts ? "Search products" : "Search this collection";
 
-      <section className="catalog" aria-label={currentCategory.title + " products"}>
+  return (
+    <main className={isAllProducts ? "products products--all" : "products"}>
+      {isAllProducts ? <h1 className="sr-only">All products</h1> : (
+        <section className="catalogHero" key={catId}>
+          <div className="catalogHero__visual">
+            <img src={currentCategory.image} alt={catalogLabel} />
+            <span className="catalogHero__visualIndex">{currentCategory.title}</span>
+          </div>
+          <div className="catalogHero__content">
+            <div className="catalogHero__top">
+              <span className="catalogHero__number">{currentCategory.number}</span>
+              <span className="catalogHero__eyebrow">M-store collection</span>
+            </div>
+            <div className="catalogHero__main">
+              <h1>{currentCategory.title}</h1>
+              <p>{currentCategory.description}</p>
+            </div>
+            <div className="catalogHero__bottom"><span>New season</span><span>Selected essentials</span></div>
+          </div>
+        </section>
+      )}
+
+      <section className="catalog" aria-label={catalogLabel}>
         {!isMobile && (
           <aside className="catalogFilters" aria-labelledby="catalog-filters-title">
             <CatalogFilters {...filterProps} headingId="catalog-filters-title" />
@@ -181,8 +166,8 @@ const Products = () => {
         <div className="catalogContent" ref={catalogContentRef}>
           <div className="catalogToolbar" ref={catalogToolbarRef}>
             <div className="catalogToolbar__title">
-              <h2>{currentCategory.title} collection</h2>
-              <span role="status">{loading ? "Loading collection..." : error ? "Collection unavailable" : productCount}</span>
+              {!isAllProducts && <h2>{catalogLabel}</h2>}
+              <span role="status">{loading ? "Loading products..." : error ? "Products unavailable" : productCount}</span>
             </div>
             <div className="catalogToolbar__actions">
               {isMobile && (
@@ -205,17 +190,17 @@ const Products = () => {
 
           <div className="catalogSearch">
             <SearchRoundedIcon aria-hidden="true" />
-            <input type="search" aria-label="Search this collection" placeholder="Search this collection..." value={query} maxLength={100} onChange={(event) => updateQuery({ q: event.target.value }, { replace: true })} />
+            <input type="search" aria-label={searchLabel} placeholder={searchLabel + "..."} value={query} maxLength={100} onChange={(event) => updateQuery({ q: event.target.value }, { replace: true })} />
             {query && <button type="button" aria-label="Clear search" onClick={() => updateQuery({ q: null })}><CloseRoundedIcon /></button>}
           </div>
 
           {hasActiveFilters && (
             <div className="activeFilters" aria-label="Active filters">
-              {collection && (
-                <button type="button" className="activeFilters__chip" aria-label={"Remove " + collectionContent[collection].title + " filter"} onClick={() => updateQuery({ collection: null })}>
-                  <span className="activeFilters__chipLabel">{collectionContent[collection].title}</span><CloseRoundedIcon />
+              {selectedCollections.map((collection) => (
+                <button type="button" className="activeFilters__chip" key={collection} aria-label={"Remove " + COLLECTION_LABELS[collection] + " filter"} onClick={() => updateQuery({ collection: selectedCollections.filter((item) => item !== collection) })}>
+                  <span className="activeFilters__chipLabel">{COLLECTION_LABELS[collection]}</span><CloseRoundedIcon />
                 </button>
-              )}
+              ))}
               {selectedSubCats.map((item) => (
                 <button type="button" className="activeFilters__chip" key={item} aria-label={"Remove " + item + " filter"} onClick={() => updateQuery({ sub: selectedSubCats.filter((selected) => selected !== item) })}>
                   <span className="activeFilters__chipLabel">{item}</span><CloseRoundedIcon />
@@ -236,7 +221,7 @@ const Products = () => {
 
       <Drawer anchor="right" transitionDuration={reducedMotion ? 0 : 250} open={isMobile && filtersOpen} onClose={closeFilters} SlideProps={{ onExited: () => setFiltersClosing(false) }} PaperProps={{ id: "mobile-catalog-filters", className: "catalogFilterDrawer", role: "dialog", "aria-modal": true, "aria-labelledby": "mobile-catalog-filters-title" }}>
         <div className="catalogFilterDrawer__top">
-          <span>{currentCategory.title} collection</span>
+          <span>{catalogLabel}</span>
           <button type="button" className="catalogFilterDrawer__close" aria-label="Close filters" onClick={closeFilters} autoFocus><CloseRoundedIcon /></button>
         </div>
         <div className="catalogFilterDrawer__body"><CatalogFilters {...filterProps} headingId="mobile-catalog-filters-title" /></div>

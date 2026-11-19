@@ -1,15 +1,18 @@
 export const MAX_PRICE = 500;
+export const COLLECTION_LABELS = { new: "New Arrivals", sale: "Sale" };
 
 export const readCatalogQuery = (params) => {
   const rawPrice = params.get("max");
   const parsedPrice = rawPrice === null || rawPrice.trim() === "" ? MAX_PRICE : Number(rawPrice);
-  const collection = params.get("collection");
+  const collections = params.getAll("collection").filter((value) =>
+    Object.prototype.hasOwnProperty.call(COLLECTION_LABELS, value)
+  );
   return {
     query: (params.get("q") || "").slice(0, 100),
     maxPrice: Number.isFinite(parsedPrice) ? Math.max(0, Math.min(MAX_PRICE, parsedPrice)) : MAX_PRICE,
     sort: params.get("sort") === "desc" ? "desc" : "asc",
     selectedSubCats: [...new Set(params.getAll("sub").filter(Boolean))],
-    collection: collection === "sale" || collection === "new" ? collection : "",
+    selectedCollections: [...new Set(collections)],
   };
 };
 
@@ -39,13 +42,17 @@ const hasSalePrice = (item) => {
     rawPreviousPrice != null && Number.isFinite(previousPrice) && previousPrice > price;
 };
 
-export const filterCatalogProducts = (items, { query, maxPrice, sort, selectedSubCats, collection = "" }) => {
+const matchesCollection = {
+  new: (item) => item.isNew === true || item.isNew === "true",
+  sale: hasSalePrice,
+};
+
+export const filterCatalogProducts = (items, { query, maxPrice, sort, selectedSubCats, selectedCollections = [] }) => {
   const search = query.trim().toLocaleLowerCase();
   return items
     .filter((item) => Number(item.price) <= maxPrice &&
       (!selectedSubCats.length || selectedSubCats.includes(item.sub_category)) &&
       (!search || String(item.title || "").toLocaleLowerCase().includes(search)) &&
-      (collection !== "new" || item.isNew === true || item.isNew === "true") &&
-      (collection !== "sale" || hasSalePrice(item)))
+      (!selectedCollections.length || selectedCollections.some((collection) => matchesCollection[collection](item))))
     .sort((a, b) => sort === "desc" ? Number(b.price) - Number(a.price) : Number(a.price) - Number(b.price));
 };

@@ -2,10 +2,10 @@ import { filterCatalogProducts, getCatalogSubCategories, MAX_PRICE, readCatalogQ
 
 test("catalog controls survive a shareable URL round trip", () => {
   const params = writeCatalogQuery(new URLSearchParams("campaign=portfolio"), {
-    q: "linen shirt", sub: ["T-shirts", "Shoes"], max: 180, sort: "desc", collection: "new",
+    q: "linen shirt", sub: ["T-shirts", "Shoes"], max: 180, sort: "desc", collection: ["new", "sale"],
   });
   expect(readCatalogQuery(new URLSearchParams(params.toString()))).toEqual({
-    query: "linen shirt", selectedSubCats: ["T-shirts", "Shoes"], maxPrice: 180, sort: "desc", collection: "new",
+    query: "linen shirt", selectedSubCats: ["T-shirts", "Shoes"], maxPrice: 180, sort: "desc", selectedCollections: ["new", "sale"],
   });
   expect(params.get("campaign")).toBe("portfolio");
   expect(readCatalogQuery(new URLSearchParams("q=previous&sort=asc")).query).toBe("previous");
@@ -13,7 +13,7 @@ test("catalog controls survive a shareable URL round trip", () => {
 
 test("invalid URL controls fall back safely and resetting removes defaults", () => {
   expect(readCatalogQuery(new URLSearchParams("max=nope&sort=random&sub=Shoes&sub=Shoes&collection=unknown"))).toEqual({
-    query: "", maxPrice: MAX_PRICE, sort: "asc", selectedSubCats: ["Shoes"], collection: "",
+    query: "", maxPrice: MAX_PRICE, sort: "asc", selectedSubCats: ["Shoes"], selectedCollections: [],
   });
   expect(readCatalogQuery(new URLSearchParams("max=-5")).maxPrice).toBe(0);
   expect(readCatalogQuery(new URLSearchParams("max=1000")).maxPrice).toBe(MAX_PRICE);
@@ -72,4 +72,15 @@ test("all-product filter options come from available API subcategories", () => {
   ];
   expect(getCatalogSubCategories(items)).toEqual(["accessories", "shoes"]);
   expect(items[0].sub_category).toBe("shoes");
+});
+
+test("checking both collections shows either selection within the chosen product type", () => {
+  const items = [
+    { id: "new", sub_category: "shoes", price: 80, isNew: true },
+    { id: "sale", sub_category: "shoes", price: 90, previousPrice: 120 },
+    { id: "full-price", sub_category: "shoes", price: 90 },
+    { id: "other-type", sub_category: "coat", price: 110, isNew: true },
+  ];
+  const query = readCatalogQuery(new URLSearchParams("collection=new&collection=sale&sub=shoes"));
+  expect(filterCatalogProducts(items, query).map((item) => item.id)).toEqual(["new", "sale"]);
 });

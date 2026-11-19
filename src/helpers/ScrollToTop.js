@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
-const pageTitles = { "/": "Fashion collection", "/cart": "Your bag", "/wishlist": "Wishlist", "/payment": "Demo checkout", "/order-complete": "Order confirmed", "/about": "About" };
+const pageTitles = { "/": "Fashion collection", "/products/all": "All products", "/cart": "Your bag", "/wishlist": "Wishlist", "/payment": "Demo checkout", "/order-complete": "Order confirmed", "/about": "About" };
 const positions = new Map();
 
 export default function ScrollToTop() {

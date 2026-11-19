@@ -166,6 +166,10 @@
   align-items: start;
 }
 
+.products--all .catalog {
+  margin-top: 0;
+}
+
 .catalogFilters {
   position: sticky;
   top: 92px;
@@ -228,6 +232,8 @@
         letter-spacing: -0.035em;
       }
     }
+
+    &--compact { min-height: 48px; }
   }
 
   &__status {
