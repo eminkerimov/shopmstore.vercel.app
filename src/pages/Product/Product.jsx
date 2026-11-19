@@ -13,6 +13,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import useFetch from "../../custom/useFetch";
 import Card from "../../components/Card/Card";
+import RecentlyViewed from "../../components/RecentlyViewed/RecentlyViewed";
 import AnimatedProductGrid from "../../components/AnimatedProductGrid/AnimatedProductGrid";
 import AsyncState, { ProductDetailSkeleton, ProductSkeleton } from "../../components/AsyncState/AsyncState";
 import QuantityControl from "../../components/QuantityControl/QuantityControl";
@@ -225,6 +226,8 @@ const Product = () => {
   const hasSizes = variants.sizes.length > 0;
   const hasColors = variants.colors.length > 0;
   const selectionsComplete = (!hasSizes || variants.sizes.includes(size)) && (!hasColors || variants.colors.includes(color));
+  const missingOptions = [hasColors && !variants.colors.includes(color) && "a color", hasSizes && !variants.sizes.includes(size) && "a size"].filter(Boolean);
+  const selectionHint = missingOptions.length ? `Select ${missingOptions.join(" and ")} to add this item.` : "";
   const selectedVariantCaption = [size, color].filter(Boolean).join(" · ");
 
   useEffect(() => {
@@ -308,10 +311,10 @@ const Product = () => {
             </button>)}
           </div>}
           <div className="product__main-image" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
-            {product.isNew && <span className="product__badge">New collection</span>}
+            {product.isNew && <span className="product__badge">New</span>}
             {images.length ? <button type="button" className="product__zoom-trigger" onClick={() => setZoomOpen(true)} aria-label={`Enlarge ${product.title} image`}>
               <img key={images[imageIndex]} src={images[imageIndex]} data-product-image={String(product.id)} alt={`${product.title}, view ${imageIndex + 1}`} fetchpriority="high" />
-              <span className="product__zoom-label"><ZoomInIcon /> View details</span>
+              <span className="product__zoom-label"><ZoomInIcon /> Enlarge photo</span>
             </button> : <div className="product__image-empty">No product photos available</div>}
             {images.length > 1 && <div className="product__gallery-controls">
               <button type="button" onClick={() => moveImage(-1)} aria-label="Previous product image"><ChevronLeftIcon /></button>
@@ -325,46 +328,39 @@ const Product = () => {
           <div className="product__heading">
             {product.sub_category && <span className="product__category">{product.sub_category}</span>}
             <h1 id="product-title">{product.title}</h1>
-            {product.desc && <p className="product__description">{product.desc}</p>}
           </div>
-          <div className="product__price">
-            {product.previousPrice && <del>{formatProductPrice(product.previousPrice)}</del>}
-            <span>{formatProductPrice(product.price)}</span><small>Demo price · USD</small>
-          </div>
-          {(hasSizes || hasColors) && <div className="product__variants">
-            {hasColors && <fieldset><legend>Color {color && <span>· {color}</span>}</legend>
-              <div className="product__options">{variants.colors.map((option) => <button key={option} type="button"
-                className={`product__option ${color === option ? "product__option--selected" : ""}`} aria-pressed={color === option} onClick={() => setColor(option)}>{option}</button>)}</div>
-            </fieldset>}
-            {hasSizes && <fieldset><legend>Size {size && <span>· {size}</span>}</legend>
-              <div className="product__options">{variants.sizes.map((option) => <button key={option} type="button"
-                className={`product__option product__option--size ${size === option ? "product__option--selected" : ""}`} aria-pressed={size === option} onClick={() => setSize(option)}>{option}</button>)}</div>
-            </fieldset>}
-          </div>}
-          <div className="product__purchase" ref={purchaseRef}>
-            <div className="product__quantity-wrapper"><span className="product__label">Quantity</span><QuantityControl value={quantity} onChange={setQuantity} /></div>
-            <button type="button" className="product__add" disabled={!selectionsComplete} onClick={handleAdd}><AddShoppingCartIcon />Add to cart</button>
-          </div>
-          <div className="product__actions">
-            <button type="button" className={`product__wishlist ${isInWishlist ? "product__wishlist--active" : ""}`} aria-pressed={isInWishlist} onClick={handleWishlist}>
-              {isInWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}{isInWishlist ? "Saved to wishlist" : "Add to wishlist"}
-            </button>
-            {hasSizes && <button type="button" onClick={() => setGuideOpen(true)} aria-haspopup="dialog"><StraightenIcon />Size guide</button>}
-          </div>
-          <div className="product__benefits">
-            <div><strong>Explore the gallery</strong><span>View product photos up close</span></div>
-            <div><strong>Keep your favourites</strong><span>Wishlist stays on this device</span></div>
-            <div><strong>Try the checkout</strong><span>A complete demo experience</span></div>
-          </div>
-          <div className="product__meta">
-            {product.vendor && <div><span>Brand</span><strong>{product.vendor}</strong></div>}
-            {product.sub_category && <div><span>Product type</span><strong>{product.sub_category}</strong></div>}
-            <div><span>Product ID</span><strong>{String(product.id)}</strong></div>
+          <div className="product__buy-panel">
+            <div className="product__price">
+              <span>{formatProductPrice(product.price)}</span>
+              {product.previousPrice && <del>{formatProductPrice(product.previousPrice)}</del>}
+              <small>USD</small>
+            </div>
+            {(hasSizes || hasColors) && <div className="product__variants">
+              {hasColors && <fieldset><legend>Color {color && <span>· {color}</span>}</legend>
+                <div className="product__options">{variants.colors.map((option) => <button key={option} type="button"
+                  className={`product__option ${color === option ? "product__option--selected" : ""}`} aria-pressed={color === option} onClick={() => setColor(option)}>{option}</button>)}</div>
+              </fieldset>}
+              {hasSizes && <fieldset><legend>Size {size && <span>· {size}</span>}</legend>
+                <div className="product__options">{variants.sizes.map((option) => <button key={option} type="button"
+                  className={`product__option product__option--size ${size === option ? "product__option--selected" : ""}`} aria-pressed={size === option} onClick={() => setSize(option)}>{option}</button>)}</div>
+              </fieldset>}
+            </div>}
+            <div className="product__purchase" ref={purchaseRef}>
+              <div className="product__quantity-wrapper"><span className="product__label">Quantity</span><QuantityControl value={quantity} onChange={setQuantity} /></div>
+              <button type="button" className="product__add" disabled={!selectionsComplete} aria-describedby={selectionHint ? "product-selection-hint" : undefined} onClick={handleAdd}><AddShoppingCartIcon />Add to cart</button>
+            </div>
+            {selectionHint && <p id="product-selection-hint" className="product__selection-hint" role="status">{selectionHint}</p>}
+            <div className="product__actions">
+              <button type="button" className={`product__wishlist ${isInWishlist ? "product__wishlist--active" : ""}`} aria-pressed={isInWishlist} onClick={handleWishlist}>
+                {isInWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}{isInWishlist ? "Saved to wishlist" : "Add to wishlist"}
+              </button>
+              {hasSizes && <button type="button" onClick={() => setGuideOpen(true)} aria-haspopup="dialog"><StraightenIcon />Size guide</button>}
+            </div>
           </div>
           <div className="product__accordions">
             <Accordion name="description" title="Description" active={activeAccordion === "description"} onToggle={() => toggleAccordion("description")}><p>{product.desc}</p></Accordion>
             <Accordion name="information" title="Details & fit" active={activeAccordion === "information"} onToggle={() => toggleAccordion("information")}>
-              <div className="product__specifications">{size && <div><span>Selected size</span><strong>{size}</strong></div>}{color && <div><span>Selected color</span><strong>{color}</strong></div>}{product.vendor && <div><span>Brand</span><strong>{product.vendor}</strong></div>}{product.type && <div><span>Collection</span><strong>{product.type}</strong></div>}</div>
+              <div className="product__specifications">{size && <div><span>Selected size</span><strong>{size}</strong></div>}{color && <div><span>Selected color</span><strong>{color}</strong></div>}{product.vendor && <div><span>Brand</span><strong>{product.vendor}</strong></div>}{product.sub_category && <div><span>Product type</span><strong>{product.sub_category}</strong></div>}{product.type && <div><span>Collection</span><strong>{product.type}</strong></div>}<div><span>Product ID</span><strong>{String(product.id)}</strong></div></div>
             </Accordion>
             <Accordion name="faq" title="Shopping with M-store" active={activeAccordion === "faq"} onToggle={() => toggleAccordion("faq")}>
               <div className="product__faq"><div><strong>Can I try the full purchase flow?</strong><p>Yes. Add this item, edit your bag and complete a demo order. No payment is taken.</p></div><div><strong>Will my selections be saved?</strong><p>Your bag and wishlist stay on this device when you return.</p></div></div>
@@ -373,7 +369,8 @@ const Product = () => {
         </section>
       </div>
       <RelatedProducts category={product.category} currentProductId={product.id} />
-      {stickyVisible && <div className="product__mobile-buy"><div><strong>{formatProductPrice(product.price)}</strong>{selectedVariantCaption && <span>{selectedVariantCaption}</span>}</div><button type="button" className="product__add" onClick={handleAdd} disabled={!selectionsComplete}><AddShoppingCartIcon />Add to cart</button></div>}
+      <RecentlyViewed product={data} currentProductId={id} />
+      {stickyVisible && <div className="product__mobile-buy"><div><strong>{formatProductPrice(product.price)}</strong>{selectedVariantCaption && <span>{selectedVariantCaption}</span>}</div><button type="button" className="product__add" onClick={handleAdd} disabled={!selectionsComplete} aria-describedby={selectionHint ? "product-selection-hint" : undefined}><AddShoppingCartIcon />Add to cart</button></div>}
 
       <Dialog open={guideOpen && hasSizes} onClose={() => setGuideOpen(false)} maxWidth="sm" fullWidth aria-labelledby="size-guide-title" className="productDialog">
         <div className="productDialog__heading"><h2 id="size-guide-title">Find your fit</h2><button type="button" className="productDialog__close" onClick={() => setGuideOpen(false)} aria-label="Close size guide"><CloseIcon /></button></div>

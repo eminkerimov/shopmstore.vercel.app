@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { resetCart, selectCartItems, selectCartQuantity, selectCartSubtotal } from "../../redux/cartReducer";
-import { formatMoney } from "../../helpers/cart";
+import { formatMoney, getCartItemKey } from "../../helpers/cart";
 import { DEMO_DETAILS, formatCardNumber, formatExpiry, validateCheckout } from "../../helpers/checkout";
 import "./Payment.scss";
 
@@ -13,6 +15,9 @@ const Payment = () => {
   const products = useSelector(selectCartItems);
   const total = useSelector(selectCartSubtotal);
   const quantity = useSelector(selectCartQuantity);
+  const compactSummary = useMediaQuery("(max-width: 900px)");
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const itemCountLabel = `${quantity} ${quantity === 1 ? "item" : "items"}`;
   const [values, setValues] = useState(EMPTY_DETAILS);
   const [errors, setErrors] = useState({});
   const [phase, setPhase] = useState("idle");
@@ -95,72 +100,109 @@ const Payment = () => {
   return (
     <main className="payment">
       <div className="payment__container">
-        <aside className="payment__summary">
-          <div className="payment__summaryTop">
-            <span className="payment__eyebrow">Demo checkout</span>
-            <h1>Complete your order</h1>
-            <p>A complete checkout preview. No real payment is taken.</p>
-          </div>
-          <div className="payment__summaryDetails">
-            <div className="payment__summaryRow"><span>Items</span><strong>{quantity}</strong></div>
-            <div className="payment__summaryRow"><span>Delivery</span><span>Included in this demo</span></div>
-            <div className="payment__summaryTotal"><span>Total</span><strong>{formatMoney(total)}</strong></div>
-          </div>
-          <p className="payment__demoHint">Your card details stay in this form and are never sent or saved.</p>
-        </aside>
-        <section className="payment__content">
-          <div className="payment__contentHeader">
-            <span className="payment__eyebrow">Payment details</span>
-            <h2>Try the checkout</h2>
+        <header className="payment__header">
+          <Link className="payment__back" to="/cart"><ArrowBackIcon />Return to bag</Link>
+          <div className="payment__headingRow">
+            <h1>Checkout</h1>
             <button className="payment__fill" type="button" disabled={phase === "processing"}
               onClick={() => { setValues(DEMO_DETAILS); setErrors({}); setPaymentError(""); }}>
               Fill test details
             </button>
           </div>
-          <form className="payment__form" ref={formRef} onSubmit={handlePay} noValidate>
-            <fieldset disabled={phase === "processing"} className="payment__fields">
-              <label className="payment__field" htmlFor="checkout-email">
-                <span>Email address</span><input {...field("email")} type="email" autoComplete="email" placeholder="name@example.com" required />
-                {error("email")}
-              </label>
-              <div className="payment__field">
-                <label htmlFor="checkout-cardNumber">Test card number</label>
-                <input {...field("cardNumber")} type="text" inputMode="numeric" autoComplete="off"
-                  placeholder="4242 4242 4242 4242" required />
-                {error("cardNumber")}
-              </div>
-              <div className="payment__cardMeta">
-                <label className="payment__field" htmlFor="checkout-expiry">
-                  <span>Expiry</span><input {...field("expiry")} inputMode="numeric" autoComplete="off" placeholder="MM / YY" maxLength={7} required />
-                  {error("expiry")}
-                </label>
-                <label className="payment__field" htmlFor="checkout-cvc">
-                  <span>CVC</span><input {...field("cvc")} inputMode="numeric" autoComplete="off" placeholder="123" maxLength={4} required />
-                  {error("cvc")}
-                </label>
-              </div>
-              <label className="payment__field" htmlFor="checkout-cardName">
-                <span>Name on test card</span><input {...field("cardName")} autoComplete="off" placeholder="Full name" required />
-                {error("cardName")}
-              </label>
-              <label className="payment__field" htmlFor="checkout-country">
-                <span>Billing country</span>
-                <select {...field("country")} required>
-                  <option value="" disabled>Select country</option>
-                  <option value="AZ">Azerbaijan</option><option value="CY">Cyprus</option>
-                  <option value="TR">Turkey</option><option value="GB">United Kingdom</option><option value="US">United States</option>
-                </select>
-                {error("country")}
-              </label>
-            </fieldset>
-            {paymentError && <p className="payment__feedback" role="alert">{paymentError}</p>}
-            <button className="payment__submit" type="submit" disabled={phase === "processing"}>
-              {phase === "processing" ? "Processing demo order..." : "Place demo order · " + formatMoney(total)}
-            </button>
-            <p className="payment__notice" role="status">{phase === "processing" ? "Processing your demo order. Please wait." : "Use test details. No payment will be processed."}</p>
-          </form>
-          <Link className="payment__back" to="/cart"><ArrowBackIcon />Return to bag</Link>
-        </section>
+          <p className="payment__demoHint">Demo checkout. No payment is taken.</p>
+        </header>
+
+        <div className="payment__layout">
+          <aside className="payment__summary" aria-label="Order summary">
+            {compactSummary ? (
+              <button type="button" className="payment__summaryToggle" aria-expanded={summaryOpen}
+                aria-controls="checkout-order-summary" onClick={() => setSummaryOpen((open) => !open)}>
+                <span className="payment__summaryToggleLabel">
+                  <strong>{summaryOpen ? "Hide order summary" : "Show order summary"}</strong>
+                  <small>{itemCountLabel}</small>
+                </span>
+                <span className="payment__summaryToggleTotal">{formatMoney(total)}<ExpandMoreIcon aria-hidden="true" /></span>
+              </button>
+            ) : (
+              <div className="payment__summaryHeader"><h2>Order summary</h2><span>{itemCountLabel}</span></div>
+            )}
+            <div id="checkout-order-summary" className="payment__summaryContent" hidden={compactSummary && !summaryOpen}>
+              <ul className="payment__items" aria-label="Items in your order">
+                {products.map((item) => (
+                  <li className="payment__item" key={getCartItemKey(item)} data-line-key={getCartItemKey(item)}>
+                    <img src={item.img} alt="" width="60" height="80" />
+                    <div className="payment__itemDetails">
+                      <h3 title={item.title}>{item.title}</h3>
+                      {(item.size || item.color) && <p className="payment__itemVariant">{[item.size, item.color].filter(Boolean).join(" · ")}</p>}
+                      <p className="payment__itemQuantity">Qty {item.quantity} · {formatMoney(item.price)} each</p>
+                    </div>
+                    <strong className="payment__itemTotal">{formatMoney(item.price * item.quantity)}</strong>
+                  </li>
+                ))}
+              </ul>
+              <dl className="payment__totals">
+                <div className="payment__summaryRow"><dt>Subtotal</dt><dd>{formatMoney(total)}</dd></div>
+                <div className="payment__summaryRow"><dt>Delivery</dt><dd>Included in this demo</dd></div>
+                <div className="payment__summaryTotal"><dt>Total</dt><dd><strong>{formatMoney(total)}</strong><span>USD</span></dd></div>
+              </dl>
+            </div>
+          </aside>
+
+          <section className="payment__content" aria-label="Checkout details">
+            <form className="payment__form" ref={formRef} onSubmit={handlePay} noValidate>
+              <fieldset disabled={phase === "processing"} className="payment__fields payment__fields--contact">
+                <legend>Contact</legend>
+                <div className="payment__field">
+                  <label htmlFor="checkout-email">Email address</label>
+                  <input {...field("email")} type="email" autoComplete="email" placeholder="name@example.com" required />
+                  {error("email")}
+                </div>
+              </fieldset>
+              <fieldset disabled={phase === "processing"} className="payment__fields">
+                <legend>Payment</legend>
+                <div className="payment__field">
+                  <label htmlFor="checkout-cardNumber">Test card number</label>
+                  <input {...field("cardNumber")} type="text" inputMode="numeric" autoComplete="off"
+                    placeholder="4242 4242 4242 4242" required />
+                  {error("cardNumber")}
+                </div>
+                <div className="payment__cardMeta">
+                  <div className="payment__field">
+                    <label htmlFor="checkout-expiry">Expiry</label>
+                    <input {...field("expiry")} inputMode="numeric" autoComplete="off" placeholder="MM / YY" maxLength={7} required />
+                    {error("expiry")}
+                  </div>
+                  <div className="payment__field">
+                    <label htmlFor="checkout-cvc">CVC</label>
+                    <input {...field("cvc")} inputMode="numeric" autoComplete="off" placeholder="123" maxLength={4} required />
+                    {error("cvc")}
+                  </div>
+                </div>
+                <div className="payment__billingMeta">
+                <div className="payment__field">
+                  <label htmlFor="checkout-cardName">Name on test card</label>
+                  <input {...field("cardName")} autoComplete="off" placeholder="Full name" required />
+                  {error("cardName")}
+                </div>
+                <div className="payment__field">
+                  <label htmlFor="checkout-country">Billing country</label>
+                  <select {...field("country")} required>
+                    <option value="" disabled>Select country</option>
+                    <option value="AZ">Azerbaijan</option><option value="CY">Cyprus</option>
+                    <option value="TR">Turkey</option><option value="GB">United Kingdom</option><option value="US">United States</option>
+                  </select>
+                  {error("country")}
+                </div>
+                </div>
+              </fieldset>
+              {paymentError && <p className="payment__feedback" role="alert">{paymentError}</p>}
+              <button className="payment__submit" type="submit" disabled={phase === "processing"}>
+                {phase === "processing" ? "Processing demo order..." : "Place demo order · " + formatMoney(total)}
+              </button>
+              <p className="payment__notice" role="status">{phase === "processing" ? "Processing your demo order. Please wait." : ""}</p>
+            </form>
+          </section>
+        </div>
       </div>
     </main>
   );

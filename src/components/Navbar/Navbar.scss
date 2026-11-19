@@ -445,3 +445,10 @@
   from { transform: scale(0.8); opacity: 0.6; }
   to { transform: scale(1); opacity: 1; }
 }
+
+@media (max-width: 360px) {
+  .navbar {
+    .wrapper { padding-inline: 64px 12px; gap: 8px; }
+    .brand { font-size: 22px; letter-spacing: 1px; white-space: nowrap; }
+  }
+}

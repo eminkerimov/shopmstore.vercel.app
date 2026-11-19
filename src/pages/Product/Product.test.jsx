@@ -29,10 +29,13 @@ test("adds selected API size and color as distinct cart variants", () => {
   const store = setupProduct();
   const addButton = screen.getByRole("button", { name: "Add to cart", exact: true });
   expect(addButton).toBeDisabled();
+  expect(addButton).toHaveAccessibleDescription("Select a color and a size to add this item.");
   fireEvent.click(screen.getByRole("button", { name: "40", exact: true }));
+  expect(addButton).toHaveAccessibleDescription("Select a color to add this item.");
   expect(addButton).toBeDisabled();
   fireEvent.click(screen.getByRole("button", { name: "Black", exact: true }));
   expect(addButton).toBeEnabled();
+  expect(screen.queryByText(/Select a color/)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Increase quantity" }));
   fireEvent.click(screen.getByRole("button", { name: "Add to cart", exact: true }));
   expect(store.getState().cart.products[0]).toMatchObject({ id: "31", size: "40", color: "Black", quantity: 2 });
@@ -113,7 +116,7 @@ test("shows API titles and descriptions without local copy corrections or inferr
   useFetch.mockImplementation((url) => ({ data: url === "/product/31" ? source : [], loading: false, error: null, refetch }));
   setupProduct();
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(source.title);
-  expect(screen.getAllByText(source.desc)).toHaveLength(2);
+  expect(screen.getAllByText(source.desc)).toHaveLength(1);
   expect(screen.queryByText("Brand", { exact: true })).not.toBeInTheDocument();
 });
 

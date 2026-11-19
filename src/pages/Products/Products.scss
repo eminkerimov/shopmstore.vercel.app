@@ -964,17 +964,12 @@
       .wishlistButton {
         top: var(--space-2);
         right: var(--space-2);
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
       }
 
       .newBadge {
-        top: var(--space-2);
-        left: var(--space-2);
-        max-width: calc(100% - 56px);
-        padding: 6px var(--space-2);
-        font-size: 8px;
-        letter-spacing: 0.04em;
+        max-width: none;
       }
 
       .prices {

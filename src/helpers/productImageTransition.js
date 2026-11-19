@@ -10,6 +10,31 @@ const frameStyles = ({ left, top, width, height }, borderRadius) => ({
 const sameBounds = (first, second) => first && ["left", "top", "width", "height", "scrollY"]
   .every((key) => Math.abs(first[key] - second[key]) < 0.5);
 
+// Interpolate the visible photo itself, so contain in cards can become cover
+// on the product page without an abrupt crop at either end of the transition.
+const photoStyles = (photo, frame, style) => {
+  const naturalWidth = photo.naturalWidth;
+  const naturalHeight = photo.naturalHeight;
+  let width = frame.width;
+  let height = frame.height;
+  if (naturalWidth > 0 && naturalHeight > 0 && style.objectFit !== "fill") {
+    const contain = Math.min(width / naturalWidth, height / naturalHeight);
+    const scale = style.objectFit === "cover" ? Math.max(width / naturalWidth, height / naturalHeight)
+      : style.objectFit === "none" ? 1 : style.objectFit === "scale-down" ? Math.min(1, contain) : contain;
+    width = naturalWidth * scale;
+    height = naturalHeight * scale;
+  }
+  const position = (style.objectPosition || "50% 50%").split(/\s+/);
+  const offset = (space, value = "50%") => value.endsWith("%") ? space * parseFloat(value) / 100
+    : value === "center" ? space / 2 : ["right", "bottom"].includes(value) ? space
+      : ["left", "top"].includes(value) ? 0 : parseFloat(value) || 0;
+  return {
+    left: offset(frame.width - width, position[0]) + "px",
+    top: offset(frame.height - height, position[1]) + "px",
+    width: width + "px", height: height + "px",
+  };
+};
+
 export const startProductImageTransition = (card, productId) => {
   const media = window.matchMedia?.("(prefers-reduced-motion: reduce)");
   if (!card || media?.matches || typeof Element.prototype.animate !== "function") return null;
@@ -38,8 +63,8 @@ export const startProductImageTransition = (card, productId) => {
   Object.assign(node.style, frameStyles(sourceBounds, sourceRadius));
   image.src = src;
   image.alt = "";
-  image.style.objectPosition = sourceStyle.objectPosition;
-  image.style.transform = sourceStyle.transform;
+  const sourcePhoto = photoStyles(source, sourceBounds, sourceStyle);
+  Object.assign(image.style, sourcePhoto, { position: "absolute", objectFit: "fill", transform: sourceStyle.transform });
   node.appendChild(image);
   document.body.appendChild(node);
   sourceFrame.style.visibility = "hidden";
@@ -117,8 +142,8 @@ export const startProductImageTransition = (card, productId) => {
     timer = setTimeout(dispose, 700);
     const duration = 420;
     const details = play(image, [
-      { objectPosition: image.style.objectPosition, transform: image.style.transform },
-      { objectPosition: getComputedStyle(candidate).objectPosition, transform: "none" },
+      { ...sourcePhoto, transform: image.style.transform },
+      { ...photoStyles(candidate, last, getComputedStyle(candidate)), transform: "none" },
     ], { duration, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
     const movement = play(node, [
       frameStyles(sourceBounds, sourceRadius),

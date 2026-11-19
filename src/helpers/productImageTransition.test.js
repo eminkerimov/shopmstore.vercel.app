@@ -72,7 +72,12 @@ test("waits for the final photo and settled route scroll instead of flying to a 
   window.cancelAnimationFrame = jest.fn((id) => frames.delete(id));
   const tick = () => { const pending = [...frames.values()]; frames.clear(); pending.forEach((callback) => callback()); };
   Element.prototype.animate = jest.fn(() => ({ cancel: jest.fn(), finished: new Promise(() => {}) }));
-  const transition = startProductImageTransition(makeCard(), "1");
+  const card = makeCard();
+  for (const photo of card.querySelectorAll("img")) {
+    photo.style.objectFit = "contain";
+    Object.defineProperty(photo, "naturalHeight", { configurable: true, value: 600 });
+  }
+  const transition = startProductImageTransition(card, "1");
   try {
     window.history.pushState(null, "", "/product/1");
     const skeleton = document.createElement("div");
@@ -87,7 +92,8 @@ test("waits for the final photo and settled route scroll instead of flying to a 
     gallery.className = "product__main-image";
     gallery.innerHTML = '<img src="/front.jpg" data-product-image="1" />';
     const photo = gallery.querySelector("img");
-    Object.defineProperties(photo, { complete: { value: true }, naturalWidth: { value: 600 } });
+    Object.defineProperties(photo, { complete: { value: true }, naturalWidth: { value: 600 }, naturalHeight: { value: 600 } });
+    photo.style.objectFit = "cover";
     let targetTop = -900;
     gallery.getBoundingClientRect = () => ({ left: 80, top: targetTop, width: 450, height: 600 });
     Object.defineProperty(window, "scrollY", { configurable: true, value: 1000 });
@@ -103,7 +109,14 @@ test("waits for the final photo and settled route scroll instead of flying to a 
     tick();
     expect(Element.prototype.animate).not.toHaveBeenCalled();
     tick();
-    const movementCalls = Element.prototype.animate.mock.calls.filter(([keyframes]) => keyframes[0].top);
+    const calls = Element.prototype.animate.mock.calls;
+    const contexts = Element.prototype.animate.mock.instances;
+    const movementCalls = calls.filter((_, index) => contexts[index].classList.contains("productImageTransition"));
+    const photoCall = calls.find((_, index) => contexts[index].tagName === "IMG");
+    expect(photoCall[0]).toEqual([
+      expect.objectContaining({ left: "0px", top: "30px", width: "180px", height: "180px" }),
+      expect.objectContaining({ left: "-75px", top: "0px", width: "600px", height: "600px" }),
+    ]);
     expect(movementCalls).toHaveLength(1);
     expect(movementCalls[0][0]).toEqual([
       expect.objectContaining({ top: "300px", width: "180px" }),

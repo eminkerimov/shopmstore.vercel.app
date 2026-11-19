@@ -10,6 +10,7 @@ const slides = [
     image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
     eyebrow: "New collection",
     title: "Define your everyday style",
+    titleLines: ["Define your", "everyday style"],
     description: "Modern essentials, clean silhouettes and carefully selected pieces for every day.",
     link: "/products/1",
     buttonText: "Shop women",
@@ -18,6 +19,7 @@ const slides = [
     image: "https://images.unsplash.com/photo-1659857913560-cc4ceb896221",
     eyebrow: "Season essentials",
     title: "Built for every moment",
+    titleLines: ["Built for", "every moment"],
     description: "Discover versatile clothing designed to move effortlessly between work and weekends.",
     link: "/products/2",
     buttonText: "Shop men",
@@ -26,6 +28,7 @@ const slides = [
     image: "https://images.unsplash.com/photo-1615461355765-178ee45afc2a",
     eyebrow: "Fresh arrivals",
     title: "Comfort for every day",
+    titleLines: ["Comfort for", "every day"],
     description: "Playful designs and comfortable pieces created for active everyday adventures.",
     link: "/products/3",
     buttonText: "Shop children",
@@ -128,12 +131,13 @@ const Slider = () => {
               alt=""
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
+              fetchpriority={index === 0 ? "high" : undefined}
             />
             <div className="slideOverlay" />
             <div className="slideContent">
               <div className={`contentInner ${currentSlide === index ? "active" : ""}`}>
                 <span className="eyebrow">{slide.eyebrow}</span>
-                <h1>{slide.title}</h1>
+                <h1>{slide.titleLines.map((line) => <span key={line}>{line}</span>)}</h1>
                 <p>{slide.description}</p>
                 <Link className="shopButton" to={slide.link} tabIndex={currentSlide === index ? 0 : -1}>
                   {slide.buttonText}
@@ -146,10 +150,7 @@ const Slider = () => {
       </div>
 
       <div className="sliderControls">
-        <button type="button" className="arrowButton" onClick={prevSlide} aria-label="Previous slide">
-          <WestOutlinedIcon />
-        </button>
-        <div className="sliderDots">
+        <div className="sliderDots" role="group" aria-label="Choose a slide">
           {slides.map((slide, index) => (
             <button
               type="button"
@@ -161,9 +162,14 @@ const Slider = () => {
             />
           ))}
         </div>
-        <button type="button" className="arrowButton" onClick={nextSlide} aria-label="Next slide">
-          <EastOutlinedIcon />
-        </button>
+        <div className="sliderArrows">
+          <button type="button" className="arrowButton" onClick={prevSlide} aria-label="Previous slide">
+            <WestOutlinedIcon />
+          </button>
+          <button type="button" className="arrowButton" onClick={nextSlide} aria-label="Next slide">
+            <EastOutlinedIcon />
+          </button>
+        </div>
       </div>
     </section>
   );

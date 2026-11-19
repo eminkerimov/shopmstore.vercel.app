@@ -1,0 +1,83 @@
+@use "../../styles/mixins" as ui;
+
+.recentlyViewed {
+  max-width: var(--content-width);
+  margin: clamp(32px, 4vw, 48px) auto 0;
+
+  > h2 {
+    @include ui.heading(clamp(1.25rem, 2vw, 1.5rem));
+    margin: 0 0 16px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 10px;
+    display: grid;
+    grid-template:
+      "photo details wishlist" 44px
+      "photo details preview" 44px / 69px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    transition: border-color 180ms ease;
+
+    &:only-child { max-width: 480px; }
+
+    &:hover,
+    &:focus-within {
+      transform: none;
+      border-color: var(--color-border-strong);
+      .image { box-shadow: none; }
+    }
+
+    .cardMedia { display: contents; }
+    .cardImageLink { grid-area: photo; border-radius: var(--radius-sm); }
+    .image { border-radius: var(--radius-sm); }
+    .cardBadges { display: none; }
+    .cardInfoLink { grid-area: details; }
+    .cardInfo { gap: 4px; }
+    h2 { min-height: 0; line-height: 1.35; }
+
+    .wishlistButton,
+    .cardQuickView {
+      position: static;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: var(--color-surface-muted);
+      box-shadow: none;
+    }
+
+    .wishlistButton { grid-area: wishlist; }
+
+    .cardQuickView {
+      grid-area: preview;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      transition: background-color 180ms ease, color 180ms ease;
+      span { display: none; }
+    }
+
+    .wishlistButton:hover,
+    .cardQuickView:hover { background: var(--color-accent-soft); }
+  }
+}
+
+@media (max-width: 640px) {
+  .recentlyViewed__grid { grid-template-columns: minmax(0, 1fr); }
+}

@@ -4,6 +4,8 @@ import { startProductImageTransition } from "../../helpers/productImageTransitio
 import { useDispatch, useSelector } from "react-redux";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { useQuickView } from "../QuickView/QuickViewProvider";
 import { toggleWishlist } from "../../redux/wishlistReducer";
 import { getProductDisplay, formatProductPrice } from "../../helpers/product";
 import "./Card.scss";
@@ -11,6 +13,7 @@ import "./Card.scss";
 const Card = ({ item }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const quickView = useQuickView();
   const product = getProductDisplay(item);
   const wishlistProducts = useSelector((state) => state.wishlist.products);
   const [announcement, setAnnouncement] = useState("");
@@ -30,11 +33,16 @@ const Card = ({ item }) => {
   };
 
   return (
-    <article className="card">
+    <article className={`card ${product.previousPrice ? "card--sale" : ""}`}>
       <div className="cardMedia">
         <Link className="cardImageLink" to={`/product/${product.id}`} onClick={openProduct} aria-label={`View ${product.title}`}>
           <div className={`image ${product.img2 ? "image--alternate" : ""}`}>
-            {product.isNew && <span className="newBadge">New season</span>}
+            {(product.isNew || product.previousPrice) && (
+              <div className="cardBadges">
+                {product.isNew && <span className="newBadge">New</span>}
+                {product.previousPrice && <span className="saleBadge">Sale</span>}
+              </div>
+            )}
             <img src={product.img} alt={product.title || "Product"} className="mainImg" loading="lazy" decoding="async" />
             {product.img2 && <img src={product.img2} alt="" className="secondImg" loading="lazy" decoding="async" />}
           </div>
@@ -48,14 +56,20 @@ const Card = ({ item }) => {
         >
           {isInWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </button>
+        {quickView && <button type="button" className="cardQuickView"
+          aria-label={`Quick view: ${product.title}`} aria-haspopup="dialog"
+          aria-expanded={quickView.activeProductId === String(product.id)}
+          onClick={() => quickView.openQuickView(item)}>
+          <VisibilityOutlinedIcon /><span>Quick view</span>
+        </button>}
         <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       </div>
       <Link className="cardInfoLink" to={`/product/${product.id}`} onClick={openProduct}>
         <div className="cardInfo">
-          <h2>{product.title}</h2>
+          <h2 title={product.title}>{product.title}</h2>
           <div className="prices">
-            {product.previousPrice && <span className="previousPrice"><span className="sr-only">Previous price: </span>{formatProductPrice(product.previousPrice)}</span>}
             <span className="currentPrice">{formatProductPrice(product.price)}</span>
+            {product.previousPrice && <span className="previousPrice"><span className="sr-only">Previous price: </span>{formatProductPrice(product.previousPrice)}</span>}
           </div>
         </div>
       </Link>

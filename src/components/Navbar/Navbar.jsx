@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 import {
   Link,
@@ -14,6 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleCart } from "../../redux/cartReducer";
 
 import Cart from "../Cart/Cart";
+import GlobalSearch from "../GlobalSearch/GlobalSearch";
+import useFetch from "../../custom/useFetch";
 
 import "./Navbar.scss";
 
@@ -30,10 +33,21 @@ const Navbar = () => {
     (state) => state.cart.cartOpen
   );
 
-  const location = useLocation().pathname;
+  const route = useLocation();
+  const location = route.pathname;
   const dispatch = useDispatch();
 
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchActivated, setSearchActivated] = useState(false);
+  const { data: searchData, loading: searchLoading, error: searchError, refetch: retrySearch } = useFetch(searchActivated ? "/product" : null);
+
+  useEffect(() => { setSearchOpen(false); }, [route.key]);
+
+  const openSearch = () => {
+    setSearchActivated(true);
+    setSearchOpen(true);
+  };
 
   const productsCount = products.reduce(
     (total, item) => total + item.quantity,
@@ -135,6 +149,10 @@ const Navbar = () => {
           </nav>
 
           <div className="utilityActions">
+            <button type="button" className={`utilityButton globalSearchTrigger ${searchOpen ? "utilityButton--active" : ""}`}
+              aria-label="Search all products" aria-haspopup="dialog" aria-expanded={searchOpen}
+              onClick={openSearch}><SearchOutlinedIcon /></button>
+
             <NavLink
               className="utilityButton wishlistIcon"
               to="/wishlist"
@@ -170,6 +188,8 @@ const Navbar = () => {
       </div>
 
       <Cart open={isCartOpen} />
+      {searchActivated && <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)}
+        products={Array.isArray(searchData) ? searchData : []} loading={searchLoading} error={searchError} onRetry={retrySearch} />}
     </header>
   );
 };

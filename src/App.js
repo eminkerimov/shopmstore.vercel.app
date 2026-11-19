@@ -4,6 +4,7 @@ import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Navbar/Navbar";
 import Mobil from "./components/Mobil/Mobil";
 import CartUndo from "./components/CartUndo/CartUndo";
+import QuickViewProvider from "./components/QuickView/QuickViewProvider";
 import AsyncState from "./components/AsyncState/AsyncState";
 import ScrollToTop from "./helpers/ScrollToTop";
 import Home from "./pages/Home/Home";
@@ -28,19 +29,21 @@ const RouteError = () => (
 );
 
 const Layout = () => (
-  <div className="app">
-    <a className="skipLink" href="#main-content">Skip to content</a>
-    <Mobil />
-    <Navbar />
-    <div id="main-content" tabIndex={-1}>
-      <Suspense fallback={<div className="routeLoading" role="status">Opening collection...</div>}>
-        <Outlet />
-        <ScrollToTop />
-      </Suspense>
+  <QuickViewProvider>
+    <div className="app">
+      <a className="skipLink" href="#main-content">Skip to content</a>
+      <Mobil />
+      <Navbar />
+      <div id="main-content" tabIndex={-1}>
+        <Suspense fallback={<div className="routeLoading" role="status">Opening collection...</div>}>
+          <Outlet />
+          <ScrollToTop />
+        </Suspense>
+      </div>
+      <Footer />
+      <CartUndo />
     </div>
-    <Footer />
-    <CartUndo />
-  </div>
+  </QuickViewProvider>
 );
 
 const router = createBrowserRouter([
